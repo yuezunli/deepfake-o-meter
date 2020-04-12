@@ -1,20 +1,65 @@
 # DeepForensics
-This toolbox integrates the existing detection methods into a unified framework.
 
+This repository is a python library, which incorperates existing deepfake detection method into an unified framework. 
 
 ## Introduction
-label 0: real
-label 1: fake
+To date, this toolbox supports following methods: 
 
-## Detection methods
+| Methods     | Platform            |  Required Packages | Modes         |
+|----------   |:-------------:      |------:    |------:        |
+| XceptionNet |  py3, pytorch-1.0.1 | pretrainmodels | c23, c40, raw |   
+| MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 |  
+| VA          |  py3                | - | - |
+| FWA         |  py2, tf-1.5        | - | - | 
+| DSP-FWA     |  py3, pytorch-1.0.1 | - | - |
+| ClassNSeg   |  py3, pytorch-1.0.1 | - | - |  
 
-### XceptionNet
-* __requirements__：pip install pretrainmodels, pytorch, xxxxxx
-* __Setup__: Download code repository from [here](https://drive.google.com/open?id=10oYOGDM0FaPNwOYr-E_3g1WPxNTQnlTb) and unzip it to folder `externals`.
+For the details of each method, please look into our [paper](https://arxiv.org/pdf/1909.12962.pdf.)
 
-### MesoNet
-* py3, keras==2.1.5, tensorflow==1.5
+## Quick Start
+```
+import cv2
+import deepfor
 
+# Read image
+img = cv2.imread('test_img.png')    
+conf = deepfor.DSPFWA().run(img) # conf of fake
+print('Fake confidence score is: {}'.format(conf))
 
-### FWA
-* py2, tensorflow==1.5
+```
+
+## Logs
+
+## Comming Soon
+We will employ docker to handle platform issue of each method.
+
+## Citation
+
+Please cite our paper in your publications if this toolbox is used in your research:
+
+```
+@inproceedings{Celeb_DF_cvpr20,
+   author = {Yuezun Li, Xin Yang, Pu Sun, Honggang Qi and Siwei Lyu},
+   title = {Celeb-DF: A Large-scale Challenging Dataset for DeepFake Forensics},
+   booktitle= {IEEE Conference on Computer Vision and Patten Recognition (CVPR)},
+   year = {2020}
+}
+```
+
+## To whom may be interested in incorperating their methods into this toolbox 
+
+If you are interested in incorperating your method into this toolbox, please provide interface functions in a python file as follows:
+
+````
+# For instance, the interface file is called utils.py, which should contain four functions
+
+def init_model(*args); # This is for initializing the network
+def crop_face(*args); # Crop the faces from input image
+def preproc(*args); # Any pre-processing operation on cropped faces, eg, normalization
+def predict(*args); # Predictions of your method by taking the processed face as input
+````
+With these interfaces, we can intergrate your method more conviniently.
+
+## Contributors
+* [Yuezun Li](https://www.albany.edu/~yl149995/)
+* Pu Sun
