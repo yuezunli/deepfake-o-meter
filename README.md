@@ -8,7 +8,7 @@ This repository is a python library, which incorperates existing deepfake detect
 To date, this toolbox supports following methods: 
 
 | Methods     | Platform            | Required Packages | Modes  | Download |
-|----------   |:-------------:      |------:            |------: | ------:  |
+|----------   |:-------------:      |:------:            |:------: | :------:  |
 | XceptionNet |  py3, pytorch-1.0.1 | pretrainmodels | c23, c40, raw | [Link](https://drive.google.com/open?id=1FjbSxvLR0YVao5ykLGIFj47FVe6eDTNh) |
 | MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 | [Link](https://drive.google.com/open?id=13ChUtbxuqBS4-kRv8BkSKcb-8hDUi3bO) |  
 | VA          |  py3                | - | - | [Link](https://drive.google.com/open?id=1MI8YNJ9tnHD6551bxLDl0BngcQyFXxNB) | 
