@@ -1,5 +1,6 @@
 # DeepForensics
 
+<img src="assets/logo.jpg" alt="logo" width="150"/>
 
 This repository is a python library, which incorperates existing deepfake detection method into an unified framework. 
 
