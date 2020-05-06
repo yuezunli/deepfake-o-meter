@@ -67,6 +67,9 @@ def predict(*args); # Predictions of your method by taking the processed face as
 ````
 With these interfaces, we can intergrate your method more conviniently.
 
+## GUI
+We also provide a GUI interface for users. The detail of usage procedure is shown [here]().
+
 ## Contributors
 * [Yuezun Li](https://www.albany.edu/~yl149995/)
 * Pu Sun

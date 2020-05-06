@@ -37,9 +37,9 @@ class MesoNet(DeepForCls):
         return im
 
     def crop_face(self, im):
-        points = self.facelib.get_face_landmarks(im)[0]
+        loc, points = self.facelib.get_face_loc_landmarks(im)[0]
         cropped_face = self.pointer.crop_face(im, points)
-        return cropped_face
+        return cropped_face, loc
 
     def get_softlabel(self, im):
         # Model prediction
@@ -85,7 +85,7 @@ class XceptionNet(DeepForCls):
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
             cropped_face = im[y:y+size, x:x+size]
-        return cropped_face
+        return cropped_face, [x, y, x+size, y+size]
 
     def get_softlabel(self, im):
         # Model prediction
@@ -129,7 +129,7 @@ class ClassNSeg(DeepForCls):
         if bbox is None or (not flag):
             return None
         altered_cropped, cors = self.pointer.extract_face(im, bbox)
-        return altered_cropped
+        return altered_cropped, bbox
 
     def get_softlabel(self, im):
         # Model prediction
@@ -214,7 +214,7 @@ class CapsuleNet(DeepForCls):
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
             cropped_face = im[y:y+size, x:x+size]
-        return cropped_face
+        return cropped_face, [x, y, x+size, y+size]
 
     def get_softlabel(self, im):
         # Model prediction
@@ -248,8 +248,8 @@ class FWA(DeepForCls):
         self.facelib.set_landmarks_predictor(68)
 
     def crop_face(self, im):
-        point = self.facelib.get_face_landmarks(im)[0]
-        return self.pointer.crop(im, point)
+        loc, point = self.facelib.get_face_loc_landmarks(im)[0]
+        return self.pointer.crop(im, point), loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.solver, im) # fake conf
@@ -275,8 +275,8 @@ class DSPFWA(DeepForCls):
         self.facelib.set_landmarks_predictor(68)
 
     def crop_face(self, im):
-        point = self.facelib.get_face_landmarks(im)[0]
-        return self.pointer.crop(im, point)
+        loc, point = self.facelib.get_face_loc_landmarks(im)[0]
+        return self.pointer.crop(im, point), loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.net, im) # fake conf
