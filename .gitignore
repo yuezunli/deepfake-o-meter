@@ -1,2 +1,4 @@
 externals
 .vscode
+*.pyc
+__pycache__
