@@ -1,4 +1,4 @@
 externals
 .vscode
-*.pyc
-__pycache__
+**/*.pyc
+__pycache__/
