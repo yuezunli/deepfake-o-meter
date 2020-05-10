@@ -3,5 +3,5 @@ import deepfor
 
 # Read image
 img = cv2.imread('test_img.png')
-conf = deepfor.Upconv().run(img) # conf of fake
+conf = deepfor.EVA().run(img) # conf of fake
 print('Fake confidence score is: {}'.format(conf))
