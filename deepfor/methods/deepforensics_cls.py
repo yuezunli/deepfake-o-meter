@@ -288,7 +288,7 @@ class DSPFWA(DeepForCls):
         return conf
 
     def run(self, im):
-        rois = self.crop_face(im)
+        rois, _ = self.crop_face(im)
         conf = self.get_softlabel(rois)
         return conf
 
