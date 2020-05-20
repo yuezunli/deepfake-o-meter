@@ -1,7 +1,7 @@
 import requests, os, time, cv2, pdb
 
 
-def load_model(methods):
+def initial_model(methods):
     urls = []
     for method in methods:
         if method == 'upconv':
