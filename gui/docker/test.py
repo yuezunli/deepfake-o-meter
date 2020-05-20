@@ -11,7 +11,7 @@ def load_model(methods):
             urls.append('http://0.0.0.0:2500/deepforensics')
 
         elif method == 'dspfwa':
-            os.system('docker run -p 2501:5000 --runtime=nvidia -e NVIDIA_VISIBLE_DEVICE=0 dspfwa1 &')
+            os.system('docker run -p 2501:5000 --runtime=nvidia -e NVIDIA_VISIBLE_DEVICE=0 zhangconghh/dspfwa:deepforensics &')
             time.sleep(10)
             print('Load the DSP-FWA Model')
             urls.append('http://0.0.0.0:2501/deepforensics')
