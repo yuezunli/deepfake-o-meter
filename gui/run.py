@@ -193,7 +193,7 @@ class VidForGui(VideoSandboxWnd):
         if self.method_name.lower() == 'dsp-fwa':
             # Init method
             self.model = deepfor.DSPFWA()
-        elif self.method_name.lower() == 'XceptionNet':
+        elif self.method_name.lower() == 'xceptionnet':
             # Init method
             self.model = deepfor.XceptionNet()
         print ('Method {} is selected.'.format(self.method_name))
@@ -224,7 +224,11 @@ class VidForGui(VideoSandboxWnd):
             QCoreApplication.processEvents()
             # prob, face_info = funcs.im_test(net, im, front_face_detector, lmark_predictor)
             face, loc = self.model.crop_face(im)
-            prob = 1 - self.model.get_softlabel(face)
+            if len(face):
+                face_proc = self.model.preproc(face)
+                prob = 1 - self.model.get_softlabel(face_proc)
+            else:
+                prob = 0.5
             self.probs.append(prob)
             vis_im = utils.draw_face_score(im.copy(), loc, prob)[:, :, (2, 1, 0)]
             vis_im = cv2.resize(vis_im, None, None, fx=scale, fy=scale)

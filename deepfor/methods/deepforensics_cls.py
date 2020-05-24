@@ -85,7 +85,13 @@ class XceptionNet(DeepForCls):
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
             cropped_face = im[y:y+size, x:x+size]
+<<<<<<< HEAD
         return cropped_face
+=======
+            return cropped_face, [x, y, x+size, y+size]
+        else:
+            return [], []
+>>>>>>> b6d5c9268afef0721b8e5b7b1726923b0bd71b2b
 
     def get_softlabel(self, im):
         # Model prediction
@@ -274,6 +280,9 @@ class DSPFWA(DeepForCls):
         self.facelib.set_face_detector()
         self.facelib.set_landmarks_predictor(68)
 
+    def preproc(self, im):
+        return im
+
     def crop_face(self, im):
         point = self.facelib.get_face_landmarks(im)[0]
         return self.pointer.crop(im, point)
@@ -283,7 +292,7 @@ class DSPFWA(DeepForCls):
         return conf
 
     def run(self, im):
-        rois = self.crop_face(im)
+        rois, _ = self.crop_face(im)
         conf = self.get_softlabel(rois)
         return conf
 
