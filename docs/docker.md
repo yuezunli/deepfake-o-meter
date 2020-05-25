@@ -120,13 +120,14 @@ docker run --runtime=nvidia --rm nvidia/cuda nvidia-smi
        app.run(debug = True, host = '0.0.0.0')
 ```
 
-2. Pull the docker image from dockerhub and load the model in the docker environment.
+2. Pull the docker image from docker hub and load the model in the docker environment.
 
 ```sh
 docker run -p 2500:5000 -v /media/disk/Backup/02congzhang/deepfake/fordocker/a/deepforensics/:/deepforensics/ --runtime=nvidia -e NVIDIA_VISIBLE_DEVICE=0 zhangconghh/dspfwa:env python3 deepforensics/server/server_dspfwa.py
 ```
 
 3. Test images.
+
    The connection between the port 5000 of the docker environment and the port 2500 of the host machine is built. We can vist the model loaded in the docker environment by sending images to the port 2500 of the host machine.
 
 ```python
