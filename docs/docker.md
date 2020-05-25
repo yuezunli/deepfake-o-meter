@@ -4,7 +4,7 @@
 
 We built a client-server model for the prediction of deepfake image. The docker image is used to create a deep learning environment. Models will keep running in the docker environment, waiting for images.  The connection between the docker image and the outside is through a specific port mapping between the docker image and the host machine. Once the images are send to the port of docker, the probability of deepfake will be calculated and return back.
 
-![docker](..\assets\docker.jpg)
+![docker](../assets/docker.jpg)
 
 ## Installation
 
