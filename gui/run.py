@@ -26,7 +26,7 @@ import os, cv2
 # import funcs
 
 import deepfor
-import utils
+import utils, requests, socket, time
 
 pwd = os.path.join(os.path.dirname(__file__))
 
@@ -37,9 +37,40 @@ class VidForGui(VideoSandboxWnd):
         self.out_dir = os.path.join(pwd, 'out/')
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
+        self.init_model()
         self.init = 1
         self.max_height = 400
         self.max_width = 800
+
+    def init_model(self):
+        # windows
+        self.urls  = {}
+        ip = socket.gethostbyname(socket.gethostname())
+        os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+                  '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
+        time.sleep(10)
+        self.urls['upconv'] = 'http://0.0.0.0:2500/deepforensics'
+        print('Load the Upconv Model')
+
+        os.system('start docker run -p 2505:5000 -v '+ os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+                  '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py')
+        time.sleep(10)
+        self.urls['dspfwa'] = 'http://'+ip+':2505/deepforensics'
+        print('Load the DSP-FWA Model')
+
+        # linux
+        # self.urls = {}
+        # ip = socket.gethostbyname(socket.gethostname())
+        # os.system('docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA &')
+        # time.sleep(10)
+        # print('Load the Upconv Model')
+        # self.urls['upconv'] = 'http://0.0.0.0:2500/deepforensics'
+        # os.system('docker run -p 2505:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py &')
+        # time.sleep(10)
+        # self.urls['dspfwa'] = 'http://' + ip + ':2505/deepforensics'
+        # print('Load the DSP-FWA Model')
 
     def open_video_dialog(self):
         dialog_title = self.tr('Load Video')
@@ -93,7 +124,7 @@ class VidForGui(VideoSandboxWnd):
         self.playSpeedComboBox = QComboBox ()
         self.playSpeedComboBox.addItem('Mehtod')
         self.playSpeedComboBox.addItem('DSP-FWA')
-        self.playSpeedComboBox.addItem('XceptionNet')
+        self.playSpeedComboBox.addItem('Upconv')
         self.method_name = self.playSpeedComboBox.currentText()
         self.playSpeedComboBox.currentIndexChanged.connect (self.on_select_method)
         proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
@@ -189,13 +220,12 @@ class VidForGui(VideoSandboxWnd):
         self.DF_info.setText("")
 
     def on_select_method(self):
+        self.methods = []
         self.method_name = self.playSpeedComboBox.currentText()
         if self.method_name.lower() == 'dsp-fwa':
-            # Init method
-            self.model = deepfor.DSPFWA()
-        elif self.method_name.lower() == 'xceptionnet':
-            # Init method
-            self.model = deepfor.XceptionNet()
+            self.methods.append('dspfwa')
+        elif self.method_name.lower() == 'upconv':
+            self.methods.append('upconv')
         print ('Method {} is selected.'.format(self.method_name))
 
     def on_analyze(self):
@@ -222,31 +252,34 @@ class VidForGui(VideoSandboxWnd):
         self.final_vis = []
         for fid, im in enumerate(imgs):
             QCoreApplication.processEvents()
-            # prob, face_info = funcs.im_test(net, im, front_face_detector, lmark_predictor)
-            face, loc = self.model.crop_face(im)
-            if len(face):
-                face_proc = self.model.preproc(face)
-                prob = 1 - self.model.get_softlabel(face_proc)
-            else:
-                prob = 0.5
-            self.probs.append(prob)
-            vis_im = utils.draw_face_score(im.copy(), loc, prob)[:, :, (2, 1, 0)]
-            vis_im = cv2.resize(vis_im, None, None, fx=scale, fy=scale)
-            self.vis_imgs.append(vis_im)
-            prob_plot = utils.gen_plot_vid(frame_num, fid, fps, self.probs)[:, :, (2, 1, 0)]
-            scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
-            # Resize plot size to same size with video
-            plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
-            self.prob_plot_vis.append(plot)
-            self.final_vis.append(np.concatenate(
-                [self.vis_imgs[fid],
-                 self.prob_plot_vis[fid]], axis=1))
-            v = np.ceil(float(fid) / frame_num * 60.0)
-            self.progress_bar.setValue(v)
-            self.proc_frame(fid)
-            if fid == 0:
-                self.adjustViewSize()
-                self.on_fit_window_to_view()
+            for method in self.methods:
+                resp = requests.post(self.urls[method], json={'feature': im.tolist()}).json()[1:-1]
+                resp_split = resp.split(',')
+                if len(resp_split) == 5:
+                    prob = 1 - float(resp_split[4])
+                    loc = [int(resp_split[0]), int(resp_split[1]), int(resp_split[2]), int(resp_split[3])]
+                else:
+                    loc = []
+                    prob = 1 - float(resp)
+
+                self.probs.append(prob)
+                vis_im = utils.draw_face_score(im.copy(), loc, prob)[:, :, (2, 1, 0)]
+                vis_im = cv2.resize(vis_im, None, None, fx=scale, fy=scale)
+                self.vis_imgs.append(vis_im)
+                prob_plot = utils.gen_plot_vid(frame_num, fid, fps, self.probs)[:, :, (2, 1, 0)]
+                scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
+                # Resize plot size to same size with video
+                plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
+                self.prob_plot_vis.append(plot)
+                self.final_vis.append(np.concatenate(
+                    [self.vis_imgs[fid],
+                     self.prob_plot_vis[fid]], axis=1))
+                v = np.ceil(float(fid) / frame_num * 60.0)
+                self.progress_bar.setValue(v)
+                self.proc_frame(fid)
+                if fid == 0:
+                    self.adjustViewSize()
+                    self.on_fit_window_to_view()
 
         prob_ary = np.array(self.probs)
         frame_no_faces = np.sum(prob_ary == -1)
