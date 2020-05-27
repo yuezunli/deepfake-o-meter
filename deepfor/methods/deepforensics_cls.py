@@ -85,13 +85,9 @@ class XceptionNet(DeepForCls):
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
             cropped_face = im[y:y+size, x:x+size]
-<<<<<<< HEAD
-        return cropped_face
-=======
             return cropped_face, [x, y, x+size, y+size]
         else:
             return [], []
->>>>>>> b6d5c9268afef0721b8e5b7b1726923b0bd71b2b
 
     def get_softlabel(self, im):
         # Model prediction
