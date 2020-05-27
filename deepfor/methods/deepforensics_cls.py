@@ -250,15 +250,15 @@ class FWA(DeepForCls):
         self.facelib.set_landmarks_predictor(68)
 
     def crop_face(self, im):
-        point = self.facelib.get_face_landmarks(im)[0]
-        return self.pointer.crop(im, point)
+        loc, point = self.facelib.get_face_loc_landmarks(im)[0]
+        return self.pointer.crop(im, point), loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.solver, im) # fake conf
         return conf
 
     def run(self, im):
-        rois = self.crop_face(im)
+        rois, _ = self.crop_face(im)
         conf = self.get_softlabel(rois)
         return conf
 
@@ -280,8 +280,8 @@ class DSPFWA(DeepForCls):
         return im
 
     def crop_face(self, im):
-        point = self.facelib.get_face_landmarks(im)[0]
-        return self.pointer.crop(im, point)
+        loc, point = self.facelib.get_face_loc_landmarks(im)[0]
+        return self.pointer.crop(im, point), loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.net, im) # fake conf
