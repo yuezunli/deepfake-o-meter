@@ -49,7 +49,7 @@ class VidForGui(VideoSandboxWnd):
         os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
                   '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
         time.sleep(10)
-        self.urls['upconv'] = 'http://0.0.0.0:2500/deepforensics'
+        self.urls['upconv'] = 'http://'+ip+':2500/deepforensics'
         print('Load the Upconv Model')
 
         os.system('start docker run -p 2505:5000 -v '+ os.path.abspath(os.path.join(os.getcwd(), "../..")) + \

@@ -342,17 +342,20 @@ class Upconv(DeepForCls):
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         faces = face_detector(gray, 1)
         if len(faces):
+            # For now only take biggest face
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
-            cropped_face = im[y:y+size, x:x+size]
-        return cropped_face
+            cropped_face = im[y:y + size, x:x + size]
+            return cropped_face, [x, y, x + size, y + size]
+        else:
+            return [], []
 
     def preproc(self, im):
         im = self.pointer.preprocess_image(im)
         return im
 
     def get_softlabel(self, im):
-        conf = self.pointer.predict(im, self.model, self.praH)
+        conf = self.pointer.predict(im, self.model, self.praH)[0]
         return 1 - conf
 
     def get_hardlabel(self, im):
