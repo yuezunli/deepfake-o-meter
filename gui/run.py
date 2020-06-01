@@ -31,6 +31,37 @@ import utils, requests, socket, time
 pwd = os.path.join(os.path.dirname(__file__))
 
 
+class ComboCheckBox(QComboBox):
+    def __init__(self, items):  # items==[str,str...]
+        super(ComboCheckBox, self).__init__()
+        self.items = items
+        self.qCheckBox = []
+        self.qLineEdit = QLineEdit()
+        self.qLineEdit.setReadOnly(True)
+        qListWidget = QListWidget()
+
+        self.row_num = len(self.items)
+        for i in range(self.row_num):
+            self.qCheckBox.append(QCheckBox())
+            qItem = QListWidgetItem(qListWidget)
+            self.qCheckBox[i].setText(self.items[i])
+            qListWidget.setItemWidget(qItem, self.qCheckBox[i])
+            self.qCheckBox[i].stateChanged.connect(self.Selectlist)
+
+        self.setLineEdit(self.qLineEdit)
+        self.setModel(qListWidget.model())
+        self.setView(qListWidget)
+
+    def Selectlist(self):
+        self.Outputlist = []
+        for i in range(self.row_num):
+            if self.qCheckBox[i].isChecked() == True:
+                self.Outputlist.append(self.qCheckBox[i].text())
+        print('Method {} is selected.'.format(self.Outputlist))
+        return self.Outputlist
+
+
+
 class VidForGui(VideoSandboxWnd):
     def __init__(self):
         super(VidForGui, self).__init__()
@@ -46,16 +77,16 @@ class VidForGui(VideoSandboxWnd):
         # windows
         self.urls  = {}
         ip = socket.gethostbyname(socket.gethostname())
-        os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
-                  '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
-        time.sleep(10)
-        self.urls['upconv'] = 'http://'+ip+':2500/deepforensics'
+        # os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
+        # time.sleep(10)
+        self.urls['Upconv'] = 'http://'+'124.16.70.204'+':2500/deepforensics'
         print('Load the Upconv Model')
 
-        os.system('start docker run -p 2505:5000 -v '+ os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
-                  '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py')
-        time.sleep(10)
-        self.urls['dspfwa'] = 'http://'+ip+':2505/deepforensics'
+        # os.system('start docker run -p 2505:5000 -v '+ os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py')
+        # time.sleep(10)
+        self.urls['DSP-FWA'] = 'http://'+'124.16.70.204'+':2505/deepforensics'
         print('Load the DSP-FWA Model')
 
         # linux
@@ -121,12 +152,16 @@ class VidForGui(VideoSandboxWnd):
         proc_ctrl_hbox = QHBoxLayout()
         proc_ctrl_hbox.setAlignment(Qt.AlignLeft)
 
-        self.playSpeedComboBox = QComboBox ()
-        self.playSpeedComboBox.addItem('Mehtod')
-        self.playSpeedComboBox.addItem('DSP-FWA')
-        self.playSpeedComboBox.addItem('Upconv')
-        self.method_name = self.playSpeedComboBox.currentText()
-        self.playSpeedComboBox.currentIndexChanged.connect (self.on_select_method)
+        # self.playSpeedComboBox = QComboBox ()
+        # self.playSpeedComboBox.addItem('Mehtod')
+        # self.playSpeedComboBox.addItem('DSP-FWA')
+        # self.playSpeedComboBox.addItem('Upconv')
+        # self.method_name = self.playSpeedComboBox.currentText()
+        # self.playSpeedComboBox.currentIndexChanged.connect (self.on_select_method)
+        # proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
+
+        self.playSpeedComboBox = ComboCheckBox(['Upconv', 'DSP-FWA'])
+        self.methods = self.playSpeedComboBox.Selectlist()
         proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
 
         self.analyze_btn = QPushButton('Analyze')
@@ -219,14 +254,6 @@ class VidForGui(VideoSandboxWnd):
         self.analyze_btn.setEnabled(True)
         self.DF_info.setText("")
 
-    def on_select_method(self):
-        self.methods = []
-        self.method_name = self.playSpeedComboBox.currentText()
-        if self.method_name.lower() == 'dsp-fwa':
-            self.methods.append('dspfwa')
-        elif self.method_name.lower() == 'upconv':
-            self.methods.append('upconv')
-        print ('Method {} is selected.'.format(self.method_name))
 
     def on_analyze(self):
         self.DF_info.setText("Analyzing...")
@@ -244,7 +271,7 @@ class VidForGui(VideoSandboxWnd):
         scale = np.minimum(float(self.max_height) / height,
                            float(self.max_width) / width)
         self.vid_info = [imgs, frame_num, fps, width, height]
-        
+        self.methods = self.playSpeedComboBox.Selectlist()
 
         self.probs = []
         self.vis_imgs = []
