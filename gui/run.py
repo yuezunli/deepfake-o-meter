@@ -273,44 +273,53 @@ class VidForGui(VideoSandboxWnd):
         self.vid_info = [imgs, frame_num, fps, width, height]
         self.methods = self.playSpeedComboBox.Selectlist()
 
-        self.probs = []
-        self.vis_imgs = []
+        prob = {}
+        loc = {}
+        self.probs = {}
+        self.vis_imgs = {}
         self.prob_plot_vis = []
         self.final_vis = []
+        for method in self.methods:
+            self.probs[method] = []
+            self.vis_imgs[method] = []
+            # self.prob_plot_vis[method] = []
+            # self.final_vis[method] = []
         for fid, im in enumerate(imgs):
             QCoreApplication.processEvents()
             for method in self.methods:
                 resp = requests.post(self.urls[method], json={'feature': im.tolist()}).json()[1:-1]
                 resp_split = resp.split(',')
                 if len(resp_split) == 5:
-                    prob = 1 - float(resp_split[4])
-                    loc = [int(resp_split[0]), int(resp_split[1]), int(resp_split[2]), int(resp_split[3])]
+                    prob[method] = 1 - float(resp_split[4])
+                    loc[method] = [int(resp_split[0]), int(resp_split[1]), int(resp_split[2]), int(resp_split[3])]
                 else:
-                    loc = []
-                    prob = 1 - float(resp)
+                    loc[method] = []
+                    prob[method] = 1 - float(resp)
+                self.probs[method].append(prob[method])
+            # import pdb; pdb.set_trace()
+            vis_im = utils.draw_face_score_v1(im.copy(), loc, prob)[:, :, (2, 1, 0)]
+            vis_im = cv2.resize(vis_im, None, None, fx=scale, fy=scale)
+            self.vis_imgs[method].append(vis_im)
 
-                self.probs.append(prob)
-                vis_im = utils.draw_face_score(im.copy(), loc, prob)[:, :, (2, 1, 0)]
-                vis_im = cv2.resize(vis_im, None, None, fx=scale, fy=scale)
-                self.vis_imgs.append(vis_im)
-                prob_plot = utils.gen_plot_vid(frame_num, fid, fps, self.probs)[:, :, (2, 1, 0)]
-                scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
-                # Resize plot size to same size with video
-                plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
-                self.prob_plot_vis.append(plot)
-                self.final_vis.append(np.concatenate(
-                    [self.vis_imgs[fid],
-                     self.prob_plot_vis[fid]], axis=1))
-                v = np.ceil(float(fid) / frame_num * 60.0)
-                self.progress_bar.setValue(v)
-                self.proc_frame(fid)
-                if fid == 0:
-                    self.adjustViewSize()
-                    self.on_fit_window_to_view()
+            prob_plot = utils.gen_plot_vid_v1(frame_num, fid, fps, self.probs)[:, :, (2, 1, 0)]
+            scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
+            # Resize plot size to same size with video
+            plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
+            self.prob_plot_vis.append(plot)
+            self.final_vis.append(np.concatenate(
+             [self.vis_imgs[method][fid],
+             self.prob_plot_vis[fid]], axis=1))
+            v = np.ceil(float(fid) / frame_num * 60.0)
+            self.progress_bar.setValue(v)
+            print( prob)
+            self.proc_frame(fid)
+            if fid == 0:
+                self.adjustViewSize()
+            self.on_fit_window_to_view()
 
-        prob_ary = np.array(self.probs)
+        prob_ary = np.array(self.probs[method])
         frame_no_faces = np.sum(prob_ary == -1)
-        self.vid_prob = np.mean(sorted(self.probs)[frame_no_faces:frame_no_faces + int((frame_num - frame_no_faces) / 3)])
+        self.vid_prob = np.mean(sorted(self.probs[method])[frame_no_faces:frame_no_faces + int((frame_num - frame_no_faces) / 3)])
 
         # self.DF_info.setText('Analyzing done. Processing visual plots...')
         # self.prob_plot_vis = []
@@ -351,6 +360,7 @@ class VidForGui(VideoSandboxWnd):
             scale = min(float(self.max_height) / height, float(self.max_width) / width)
             self.I = cv2.resize(self.I, None, None, fx=scale, fy=scale)
         else:
+            # for method in self.methods:
             self.I = self.final_vis[self.FI]
 
     def on_file_open_video(self):
