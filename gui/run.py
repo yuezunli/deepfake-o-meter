@@ -79,7 +79,7 @@ class VidForGui(VideoSandboxWnd):
         ip = socket.gethostbyname(socket.gethostname())
         # os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
         #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
-        # time.sleep(10)
+        # time.sleep(10)  192.168.1.105
         self.urls['Upconv'] = 'http://'+'124.16.70.204'+':2500/deepforensics'
         print('Load the Upconv Model')
 
@@ -162,6 +162,9 @@ class VidForGui(VideoSandboxWnd):
 
         self.playSpeedComboBox = ComboCheckBox(['Upconv', 'DSP-FWA'])
         self.methods = self.playSpeedComboBox.Selectlist()
+        self.playSpeedComboBox.resize(640, 480)
+        self.playSpeedComboBox.setGeometry(QRect(0, 0, 640, 480))
+
         proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
 
         self.analyze_btn = QPushButton('Analyze')
@@ -205,7 +208,7 @@ class VidForGui(VideoSandboxWnd):
         # pv.gen_vid('tmp.mp4', np.array(self.final_vis)[:, :, :, (2, 1, 0)], fps)
         # pa.audio_transfer(input_vid_path, 'tmp.mp4', os.path.join(self.out_dir, vid_name + '_vis.mp4'))
         # os.remove('tmp.mp4')
-        vid_name = vid_name + '_' + self.method_name + '_vis.mp4'
+        vid_name = vid_name + '_vis.mp4'
         utils.gen_vid_with_aud(self.final_vis, fps, self.out_dir, vid_name, input_vid_path)
         self.save_btn.setEnabled(True)
         self.DF_info.setText("")

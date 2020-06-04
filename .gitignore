@@ -2,3 +2,5 @@ externals
 .vscode
 **/*.pyc
 __pycache__/
+.idea/
+gui/out/

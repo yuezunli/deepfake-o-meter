@@ -3,7 +3,7 @@ sys.path.insert(0, '..')
 from py_utils.vid_utils import proc_vid as pv
 from py_utils.vid_utils import proc_aud as pa
 from py_utils.face_utils import lib
-import cv2
+import cv2, os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -12,8 +12,9 @@ import torch
 # import torch.nn.functional as F
 
 def gen_vid_with_aud(imgs, fps, out_dir, vid_name, input_vid_path):
-    pv.gen_vid('tmp.mp4', np.array(self.final_vis)[:, :, :, (2, 1, 0)], fps)
-    pa.audio_transfer(input_vid_path, 'tmp.mp4', os.path.join(self.out_dir, vid_name + '_vis.mp4'))
+    # self.final_vis, fps, self.out_dir, vid_name, input_vid_path
+    pv.gen_vid('tmp.mp4', np.array(imgs)[:, :, :, (2, 1, 0)], fps)
+    pa.audio_transfer(input_vid_path, 'tmp.mp4', os.path.join(out_dir, vid_name + '_vis.mp4'))
     os.remove('tmp.mp4')
 
 def parse_vid(input_vid_path):
@@ -69,7 +70,7 @@ def draw2D(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=Non
     return im[:, :, (2, 1, 0)]
 
 
-def draw2D_v1(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=None, idx=None):
+def draw2D_v1(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=None, idx=None, method=None):
     title = params['title']
     colors = params['colors']
     markers = params['markers']
@@ -99,12 +100,13 @@ def draw2D_v1(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=
     if xlim is not None:
         plt.xlim(xlim[0], xlim[1])
 
-    for YY in Y :
+    for ith, YY in enumerate(Y):
         YY = [YY]
         for i, type_name in enumerate(order):
-            plt.plot(X[i], YY[i], colors[i], label=type_name, linewidth=linewidth, markersize=markersize, marker=markers[i])
+            plt.plot(X[i], YY[i], colors[ith], label=type_name, linewidth=linewidth, markersize=markersize, marker=markers[i])
             if idx is not None:
                 plt.plot(X[i][idx], YY[i][idx], 'o', markersize=10, color='r')
+                plt.text(X[i][idx], YY[i][idx], method[ith], fontsize=20 )
 
     plt.grid()
     if is_legend:
@@ -148,7 +150,7 @@ def gen_plot_vid(frame_num, frame_id, fps, prob_list):
 def gen_plot_vid_v1(frame_num, frame_id, fps, prob_list):
     params = {}
     params['title'] = ' '
-    params['colors'] = ['b-']
+    params['colors'] = ['b-', 'g-', 'r-', 'c-', 'm-',  'y-', 'k-']
     params['markers'] = [None]
     params['linewidth'] = 3
     params['markersize'] = None
@@ -157,7 +159,9 @@ def gen_plot_vid_v1(frame_num, frame_id, fps, prob_list):
     params['legend_loc'] = 0
 
     prob_ary = []
+    method = []
     for key in prob_list.keys():
+        method.append(key)
         prob_ary.append(np.array(prob_list[key]))
     prob_ary = np.array(prob_ary)
     prob_ary[prob_ary == -1] = 0.5  # For better visualization
@@ -171,14 +175,15 @@ def gen_plot_vid_v1(frame_num, frame_id, fps, prob_list):
                             params=params,
                             xlim=[0, max_X],
                             ylim=[-0.1, 1.1],
-                            idx=frame_id)
+                            idx=frame_id,
+                            method=method)
     return prob_plot
 
 
 def gen_plot_vid_v2(frame_num, frame_id, fps, prob_list, vid_prob):
     params = {}
     params['title'] = 'Video Integrity Score = {:.2f}'.format(vid_prob)
-    params['colors'] = ['b-']
+    params['colors'] = ['b-', 'g-', 'r-', 'c-', 'm-',  'y-', 'k-']
     params['markers'] = [None]
     params['linewidth'] = 3
     params['markersize'] = None
