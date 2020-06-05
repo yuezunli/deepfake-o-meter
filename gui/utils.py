@@ -103,11 +103,11 @@ def draw2D_v1(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=
     for ith, YY in enumerate(Y):
         YY = [YY]
         for i, type_name in enumerate(order):
-            plt.plot(X[i], YY[i], colors[ith], label=type_name, linewidth=linewidth, markersize=markersize, marker=markers[i])
+            plt.plot(X[i], YY[i], colors[ith], label=method[ith], linewidth=linewidth, markersize=markersize, marker=markers[i])
             if idx is not None:
                 plt.plot(X[i][idx], YY[i][idx], 'o', markersize=10, color='r')
-                plt.text(X[i][idx], YY[i][idx], method[ith], fontsize=20 )
 
+    plt.legend(loc='upper right')
     plt.grid()
     if is_legend:
         plt.legend(loc=legend_loc)
