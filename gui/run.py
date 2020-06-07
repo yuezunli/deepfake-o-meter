@@ -26,9 +26,40 @@ import os, cv2
 # import funcs
 
 import deepfor
-import utils
+import utils, requests, socket, time
 
 pwd = os.path.join(os.path.dirname(__file__))
+
+
+class ComboCheckBox(QComboBox):
+    def __init__(self, items):  # items==[str,str...]
+        super(ComboCheckBox, self).__init__()
+        self.items = items
+        self.qCheckBox = []
+        self.qLineEdit = QLineEdit()
+        self.qLineEdit.setReadOnly(True)
+        qListWidget = QListWidget()
+
+        self.row_num = len(self.items)
+        for i in range(self.row_num):
+            self.qCheckBox.append(QCheckBox())
+            qItem = QListWidgetItem(qListWidget)
+            self.qCheckBox[i].setText(self.items[i])
+            qListWidget.setItemWidget(qItem, self.qCheckBox[i])
+            self.qCheckBox[i].stateChanged.connect(self.Selectlist)
+
+        self.setLineEdit(self.qLineEdit)
+        self.setModel(qListWidget.model())
+        self.setView(qListWidget)
+
+    def Selectlist(self):
+        self.Outputlist = []
+        for i in range(self.row_num):
+            if self.qCheckBox[i].isChecked() == True:
+                self.Outputlist.append(self.qCheckBox[i].text())
+        print('Method {} is selected.'.format(self.Outputlist))
+        return self.Outputlist
+
 
 
 class VidForGui(VideoSandboxWnd):
@@ -37,9 +68,40 @@ class VidForGui(VideoSandboxWnd):
         self.out_dir = os.path.join(pwd, 'out/')
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
+        self.init_model()
         self.init = 1
         self.max_height = 400
         self.max_width = 800
+
+    def init_model(self):
+        # windows
+        self.urls  = {}
+        ip = socket.gethostbyname(socket.gethostname())
+        # os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
+        # time.sleep(10)  192.168.1.105
+        self.urls['Upconv'] = 'http://'+'124.16.70.204'+':2500/deepforensics'
+        print('Load the Upconv Model')
+
+        # os.system('start docker run -p 2505:5000 -v '+ os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py')
+        # time.sleep(10)
+        self.urls['DSP-FWA'] = 'http://'+'124.16.70.204'+':2505/deepforensics'
+        print('Load the DSP-FWA Model')
+
+        # linux
+        # self.urls = {}
+        # ip = socket.gethostbyname(socket.gethostname())
+        # os.system('docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA &')
+        # time.sleep(10)
+        # print('Load the Upconv Model')
+        # self.urls['upconv'] = 'http://0.0.0.0:2500/deepforensics'
+        # os.system('docker run -p 2505:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
+        #           '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py &')
+        # time.sleep(10)
+        # self.urls['dspfwa'] = 'http://' + ip + ':2505/deepforensics'
+        # print('Load the DSP-FWA Model')
 
     def open_video_dialog(self):
         dialog_title = self.tr('Load Video')
@@ -90,12 +152,19 @@ class VidForGui(VideoSandboxWnd):
         proc_ctrl_hbox = QHBoxLayout()
         proc_ctrl_hbox.setAlignment(Qt.AlignLeft)
 
-        self.playSpeedComboBox = QComboBox ()
-        self.playSpeedComboBox.addItem('Mehtod')
-        self.playSpeedComboBox.addItem('DSP-FWA')
-        self.playSpeedComboBox.addItem('XceptionNet')
-        self.method_name = self.playSpeedComboBox.currentText()
-        self.playSpeedComboBox.currentIndexChanged.connect (self.on_select_method)
+        # self.playSpeedComboBox = QComboBox ()
+        # self.playSpeedComboBox.addItem('Mehtod')
+        # self.playSpeedComboBox.addItem('DSP-FWA')
+        # self.playSpeedComboBox.addItem('Upconv')
+        # self.method_name = self.playSpeedComboBox.currentText()
+        # self.playSpeedComboBox.currentIndexChanged.connect (self.on_select_method)
+        # proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
+
+        self.playSpeedComboBox = ComboCheckBox(['Upconv', 'DSP-FWA'])
+        self.methods = self.playSpeedComboBox.Selectlist()
+        self.playSpeedComboBox.resize(640, 480)
+        self.playSpeedComboBox.setGeometry(QRect(0, 0, 640, 480))
+
         proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
 
         self.analyze_btn = QPushButton('Analyze')
@@ -139,7 +208,7 @@ class VidForGui(VideoSandboxWnd):
         # pv.gen_vid('tmp.mp4', np.array(self.final_vis)[:, :, :, (2, 1, 0)], fps)
         # pa.audio_transfer(input_vid_path, 'tmp.mp4', os.path.join(self.out_dir, vid_name + '_vis.mp4'))
         # os.remove('tmp.mp4')
-        vid_name = vid_name + '_' + self.method_name + '_vis.mp4'
+        vid_name = vid_name + '_vis.mp4'
         utils.gen_vid_with_aud(self.final_vis, fps, self.out_dir, vid_name, input_vid_path)
         self.save_btn.setEnabled(True)
         self.DF_info.setText("")
@@ -188,15 +257,6 @@ class VidForGui(VideoSandboxWnd):
         self.analyze_btn.setEnabled(True)
         self.DF_info.setText("")
 
-    def on_select_method(self):
-        self.method_name = self.playSpeedComboBox.currentText()
-        if self.method_name.lower() == 'dsp-fwa':
-            # Init method
-            self.model = deepfor.DSPFWA()
-        elif self.method_name.lower() == 'xceptionnet':
-            # Init method
-            self.model = deepfor.XceptionNet()
-        print ('Method {} is selected.'.format(self.method_name))
 
     def on_analyze(self):
         self.DF_info.setText("Analyzing...")
@@ -214,43 +274,55 @@ class VidForGui(VideoSandboxWnd):
         scale = np.minimum(float(self.max_height) / height,
                            float(self.max_width) / width)
         self.vid_info = [imgs, frame_num, fps, width, height]
-        
+        self.methods = self.playSpeedComboBox.Selectlist()
 
-        self.probs = []
-        self.vis_imgs = []
+        prob = {}
+        loc = {}
+        self.probs = {}
+        self.vis_imgs = {}
         self.prob_plot_vis = []
         self.final_vis = []
+        for method in self.methods:
+            self.probs[method] = []
+            self.vis_imgs[method] = []
+            # self.prob_plot_vis[method] = []
+            # self.final_vis[method] = []
         for fid, im in enumerate(imgs):
             QCoreApplication.processEvents()
-            # prob, face_info = funcs.im_test(net, im, front_face_detector, lmark_predictor)
-            face, loc = self.model.crop_face(im)
-            if len(face):
-                face_proc = self.model.preproc(face)
-                prob = 1 - self.model.get_softlabel(face_proc)
-            else:
-                prob = 0.5
-            self.probs.append(prob)
-            vis_im = utils.draw_face_score(im.copy(), loc, prob)[:, :, (2, 1, 0)]
+            for method in self.methods:
+                resp = requests.post(self.urls[method], json={'feature': im.tolist()}).json()[1:-1]
+                resp_split = resp.split(',')
+                if len(resp_split) == 5:
+                    prob[method] = 1 - float(resp_split[4])
+                    loc[method] = [int(resp_split[0]), int(resp_split[1]), int(resp_split[2]), int(resp_split[3])]
+                else:
+                    loc[method] = []
+                    prob[method] = 1 - float(resp)
+                self.probs[method].append(prob[method])
+            # import pdb; pdb.set_trace()
+            vis_im = utils.draw_face_score_v1(im.copy(), loc, prob)[:, :, (2, 1, 0)]
             vis_im = cv2.resize(vis_im, None, None, fx=scale, fy=scale)
-            self.vis_imgs.append(vis_im)
-            prob_plot = utils.gen_plot_vid(frame_num, fid, fps, self.probs)[:, :, (2, 1, 0)]
+            self.vis_imgs[method].append(vis_im)
+
+            prob_plot = utils.gen_plot_vid_v1(frame_num, fid, fps, self.probs)[:, :, (2, 1, 0)]
             scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
             # Resize plot size to same size with video
             plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
             self.prob_plot_vis.append(plot)
             self.final_vis.append(np.concatenate(
-                [self.vis_imgs[fid],
-                 self.prob_plot_vis[fid]], axis=1))
+             [self.vis_imgs[method][fid],
+             self.prob_plot_vis[fid]], axis=1))
             v = np.ceil(float(fid) / frame_num * 60.0)
             self.progress_bar.setValue(v)
+            print( prob)
             self.proc_frame(fid)
             if fid == 0:
                 self.adjustViewSize()
-                self.on_fit_window_to_view()
+            self.on_fit_window_to_view()
 
-        prob_ary = np.array(self.probs)
+        prob_ary = np.array(self.probs[method])
         frame_no_faces = np.sum(prob_ary == -1)
-        self.vid_prob = np.mean(sorted(self.probs)[frame_no_faces:frame_no_faces + int((frame_num - frame_no_faces) / 3)])
+        self.vid_prob = np.mean(sorted(self.probs[method])[frame_no_faces:frame_no_faces + int((frame_num - frame_no_faces) / 3)])
 
         # self.DF_info.setText('Analyzing done. Processing visual plots...')
         # self.prob_plot_vis = []
@@ -291,6 +363,7 @@ class VidForGui(VideoSandboxWnd):
             scale = min(float(self.max_height) / height, float(self.max_width) / width)
             self.I = cv2.resize(self.I, None, None, fx=scale, fy=scale)
         else:
+            # for method in self.methods:
             self.I = self.final_vis[self.FI]
 
     def on_file_open_video(self):

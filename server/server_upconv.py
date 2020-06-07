@@ -19,9 +19,16 @@ model = deepfor.Upconv(mode =args.model)
 @app.route('/deepforensics', methods=['POST'])
 def predict():
     # Get the data from the POST request.
-    data = request.get_json(force = True)
-    conf = model.run(np.array(data['feature']).astype(np.uint8)) # conf of fake
-    return jsonify(conf[0].tolist())
+    data = request.get_json(force=True)
+    cropped_face, loc = model.crop_face(np.array(data['feature']).astype(np.uint8))
+    if len(cropped_face):
+        preproced_face = model.preproc(cropped_face)
+        conf = model.get_softlabel(preproced_face)
+    else:
+        conf = 0.5
+    loc.append(conf)
+    return jsonify(str(loc))
+
 
 if __name__ == '__main__':
 

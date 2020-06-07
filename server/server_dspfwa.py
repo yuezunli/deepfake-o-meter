@@ -11,8 +11,12 @@ model = deepfor.DSPFWA()
 def predict():
     # Get the data from the POST request.
     data = request.get_json(force = True)
-    conf = model.run(np.array(data['feature']).astype(np.uint8)) # conf of fake
-    return jsonify(conf.tolist())
+    rois, loc = model.crop_face(np.array(data['feature']).astype(np.uint8))
+    conf = model.get_softlabel(rois)
+    loc.append(conf)
+    # conf = 0
+    return jsonify(str(loc))
+
 
 if __name__ == '__main__':
-    app.run(debug = True, host = '0.0.0.0')
+    app.run(debug = False, host = '0.0.0.0')
