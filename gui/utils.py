@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
+# import torch
 # import torch.nn.functional as F
 
 def gen_vid_with_aud(imgs, fps, out_dir, vid_name, input_vid_path):
