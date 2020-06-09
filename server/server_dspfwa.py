@@ -13,9 +13,9 @@ def predict():
     data = request.get_json(force = True)
     rois, loc = model.crop_face(np.array(data['feature']).astype(np.uint8))
     conf = model.get_softlabel(rois)
-    loc.append(conf)
+    res = [loc, conf]
     # conf = 0
-    return jsonify(str(loc))
+    return jsonify(str(res))
 
 
 if __name__ == '__main__':
