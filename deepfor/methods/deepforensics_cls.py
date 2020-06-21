@@ -370,57 +370,30 @@ class Upconv(DeepForCls):
         return conf
 
 
-class EVA(DeepForCls):
-    def __init__(self, mode='face2face_logreg'):
-        super(EVA, self).__init__()
+class WM(DeepForCls):
+    def __init__(self):
+        super(WM, self).__init__()
         # Set up env
         pwd = os.path.dirname(__file__)
         root_dir = pwd + '/../'
-        sys.path.append(root_dir + '/externals/EVA')
-        import EVA_util
-        self.pointer = EVA_util
-        if mode == 'gan':
-            model_path = root_dir + '/externals/EVA/models/gan/bagging_knn.pkl'
-        elif mode == 'deepfake_mlp':
-            model_path = root_dir + '/externals/EVA/models/deepfake/mlp_df.pkl'
-        elif mode == 'deepfake_logreg':
-            model_path = root_dir + '/externals/EVA/models/deepfake/logreg_df.pkl'
-        elif mode == 'face2face_mlp':
-            model_path = root_dir + '/externals/EVA/models/face2face/mlp_f2f.pkl'
-        elif mode == 'face2face_logreg':
-            model_path = root_dir + '/externals/EVA/models/face2face/logreg_f2f.pkl'
-        else:
-            raise ValueError('name should be in [gan, deepfake_mlp, deepfake_logreg, face2face_mlp, face2face_logreg]')
+        sys.path.append(root_dir + '/externals/WM')
+        import wm_util
+        self.pointer = wm_util
+        self.model = self.pointer.init_model()
 
-        self.model = self.pointer.init_model(model_path)
-        self.mode = mode
-        self.facelib = Flib()
-        self.facelib.set_face_detector()
-        self.facelib.set_landmarks_predictor(68)
-
-    def crop_face(self, im):
-        face_detector = self.facelib._face_detector
-        sp68 = self.facelib._lmark_predictor
-        from pipeline import face_utils
-        # Image size
-        if self.mode.split('_')[0] == 'gan':
-            face_crops, final_landmarks = face_utils.get_crops_landmarks(face_detector, sp68, im)
-        elif self.mode.split('_')[0] == 'deepfake' or self.mode.split('_')[0] == 'face2face':
-            if self.mode.split('_')[0] == 'face2face':
-                extend_roi = 0.1
-            else:
-                extend_roi = 0.0
-            face_crops, final_landmarks = face_utils.get_crops_landmarks(face_detector, sp68, im,
-                                                                         roi_delta=extend_roi)
-        return face_crops, final_landmarks
 
     def preproc(self, im):
-        im = self.pointer.preprocess_image(im)
+        # im is face area
+        im, box = self.pointer.preprocess_image(im)
         return im
 
-    def get_softlabel(self, face_crops, final_landmarks):
-        conf = self.pointer.predict(face_crops, final_landmarks, self.model, self.mode)
-        return conf
+    def crop_face(self, im):
+        return self.pointer.crop_face(im)
+
+    def get_softlabel(self, im):
+        # Model prediction
+        output = self.pointer.predict(im, self.model)
+        return output
 
     def get_hardlabel(self, im):
         conf = self.get_softlabel(im)
@@ -428,7 +401,7 @@ class EVA(DeepForCls):
         return label
 
     def run(self, im):
-        im = self.preproc(im)
-        face_crops, final_landmarks = self.crop_face(im)
-        conf = self.get_softlabel(face_crops, final_landmarks)
+        cropped_face = self.crop_face(im)
+        preproced_face = self.preproc(cropped_face)
+        conf = self.get_softlabel(preproced_face)
         return conf
