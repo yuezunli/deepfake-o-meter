@@ -2,7 +2,7 @@
 import sys, os
 root = os.path.dirname(__file__) + '/../'
 sys.path.append(root)
-from deepfor.methods.deepforensics_cls import MesoNet, XceptionNet, ClassNSeg, VA, CapsuleNet, FWA, DSPFWA, Upconv, WM
+from deepfor.methods.deepforensics_cls import MesoNet, XceptionNet, ClassNSeg, VA, CapsuleNet, FWA, DSPFWA, Upconv, WM, SelimSeferbekov
 
 
 # if method_name.lower() == 'xceptionnet-c23':

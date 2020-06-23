@@ -383,7 +383,6 @@ class WM(DeepForCls):
 
 
     def preproc(self, im):
-        # im is face area
         im, box = self.pointer.preprocess_image(im)
         return im
 
@@ -391,7 +390,6 @@ class WM(DeepForCls):
         return self.pointer.crop_face(im)
 
     def get_softlabel(self, im):
-        # Model prediction
         output = self.pointer.predict(im, self.model)
         return output
 
@@ -402,6 +400,43 @@ class WM(DeepForCls):
 
     def run(self, im):
         cropped_face = self.crop_face(im)
+        preproced_face = self.preproc(cropped_face)
+        conf = self.get_softlabel(preproced_face)
+        return conf
+
+
+class SelimSeferbekov(DeepForCls):
+    def __init__(self):
+        # Set up env
+        pwd = os.path.dirname(__file__)
+        root_dir = pwd + '/../'
+        sys.path.append(root_dir + '/externals/')
+        from SelimSeferbekov import SelimSeferbekov_utils
+        self.pointer = SelimSeferbekov_utils
+        self.net = self.pointer.init_model()
+
+    def preproc(self, im):
+        return im
+
+    def crop_face(self, im):
+        frames_per_video = 32
+        video_reader = self.pointer.VideoReader()
+        video_read_fn = lambda x: video_reader.read_frames(im, num_frames=frames_per_video)
+        face_extractor = self.pointer.FaceExtractor(video_read_fn)
+        faces, loc = face_extractor.process_image(im)
+        return faces, loc
+
+    def get_softlabel(self, im):
+        conf = self.pointer.predict(self.net, im) # fake conf
+        return conf
+
+    def get_hardlabel(self, im):
+        conf = self.get_softlabel(im)
+        label = np.argmax(conf)
+        return label
+
+    def run(self, im):
+        cropped_face, _ = self.crop_face(im)
         preproced_face = self.preproc(cropped_face)
         conf = self.get_softlabel(preproced_face)
         return conf

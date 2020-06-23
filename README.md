@@ -18,6 +18,8 @@ To date, this toolbox supports following methods:
 | DSP-FWA     |  py3, pytorch-1.0.1 | - | - | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
 | Upconv      |  py3                | - | - | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
 | WM          |  py3, pytorch-1.1.0 | - | - | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
+| SelimSefer  |  py3, pytorch-1.1.0 | - | - | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
+
 
 For the details of each method, please look into our [paper](https://arxiv.org/pdf/1909.12962.pdf.)
 
