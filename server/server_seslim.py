@@ -6,7 +6,7 @@ import numpy as np
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-model = deepfor.DSPFWA()
+model = deepfor.SelimSeferbekov()
 
 @app.route('/deepforensics', methods=['POST'])
 def predict():
@@ -15,9 +15,10 @@ def predict():
     rois, loc = model.crop_face(np.array(data['feature']).astype(np.uint8))
     conf = model.get_softlabel(rois)
     res = [loc[0], loc[1], loc[2], loc[3], conf]
-    # conf = 0
+
     return jsonify(str(res))
 
 
 if __name__ == '__main__':
-    app.run(debug = True, host = '0.0.0.0', port='5002')
+    os.environ["CUDA_VISIBLE_DEVICES"]='1'
+    app.run(debug = True, host = '0.0.0.0', port='5004')

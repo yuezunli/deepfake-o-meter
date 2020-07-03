@@ -87,7 +87,7 @@ class XceptionNet(DeepForCls):
             cropped_face = im[y:y+size, x:x+size]
             return cropped_face, [x, y, x+size, y+size]
         else:
-            return [], []
+            return None, []
 
     def get_softlabel(self, im):
         # Model prediction
@@ -101,10 +101,13 @@ class XceptionNet(DeepForCls):
         return label
 
     def run(self, im):
-        cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        cropped_face, _ = self.crop_face(im)
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class ClassNSeg(DeepForCls):
@@ -146,9 +149,12 @@ class ClassNSeg(DeepForCls):
 
     def run(self, im):
         cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class VA(DeepForCls):
@@ -173,8 +179,11 @@ class VA(DeepForCls):
     def get_softlabel(self, im):
         # Model prediction
         scores = self.pointer.predict(im, 'deepfake', self.model, self.facelib._face_detector, self.facelib._lmark_predictor)
-        conf = {'Score_MLP': scores[0][0], 'Score_LogReg': scores[0][1]}
-        return conf
+        # conf = {'Score_MLP': scores[0][0], 'Score_LogReg': scores[0][1]}
+        if scores:
+            return scores[0][0]
+        else:
+            return 0.5
 
     def get_hardlabel(self, im):
         conf = self.get_softlabel(im)
@@ -216,7 +225,9 @@ class CapsuleNet(DeepForCls):
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
             cropped_face = im[y:y+size, x:x+size]
-        return cropped_face
+            return cropped_face
+        else:
+            return None
 
     def get_softlabel(self, im):
         # Model prediction
@@ -231,9 +242,12 @@ class CapsuleNet(DeepForCls):
 
     def run(self, im):
         cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        if cropped_face is  not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class FWA(DeepForCls):
@@ -244,14 +258,14 @@ class FWA(DeepForCls):
         sys.path.append(root_dir + '/externals/FWA')
         import fwa_utils
         self.pointer = fwa_utils
-        self.solver = self.pointer.init_model()
+        self.solver, self.cfg  = self.pointer.init_model()
         self.facelib = Flib()
         self.facelib.set_face_detector()
         self.facelib.set_landmarks_predictor(68)
 
     def crop_face(self, im):
         loc, point = self.facelib.get_face_loc_landmarks(im)[0]
-        return self.pointer.crop(im, point), loc
+        return self.pointer.crop(im, point,  self.cfg), loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.solver, im) # fake conf
@@ -271,7 +285,7 @@ class DSPFWA(DeepForCls):
         sys.path.append(root_dir + '/externals/')
         from DSP_FWA import dsp_fwa_utils
         self.pointer = dsp_fwa_utils
-        self.net = self.pointer.init_model()
+        self.net= self.pointer.init_model()
         self.facelib = Flib()
         self.facelib.set_face_detector()
         self.facelib.set_landmarks_predictor(68)
@@ -424,7 +438,7 @@ class SelimSeferbekov(DeepForCls):
         video_read_fn = lambda x: video_reader.read_frames(im, num_frames=frames_per_video)
         face_extractor = self.pointer.FaceExtractor(video_read_fn)
         faces, loc = face_extractor.process_image(im)
-        return faces, loc
+        return faces, loc[0]
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.net, im) # fake conf
