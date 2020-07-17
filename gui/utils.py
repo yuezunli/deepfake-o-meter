@@ -92,6 +92,7 @@ def draw2D_v1(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=
     matplotlib.rcParams.update(rcparams)
 
     fig = plt.figure(facecolor='white',figsize=figsize)
+    # import pdb; pdb.set_trace()
     plt.title(title)
     plt.ylabel(yname)
     if ylim is not None:
@@ -103,7 +104,8 @@ def draw2D_v1(X, Y, order, xname, yname, params, xlim=None, ylim=None, rcparams=
     for ith, YY in enumerate(Y):
         YY = [YY]
         for i, type_name in enumerate(order):
-            plt.plot(X[i], YY[i], colors[ith], label=method[ith], linewidth=linewidth, markersize=markersize, marker=markers[i])
+            # print(i, ith, len(X), len(Y), len(colors))
+            plt.plot(X[i], YY[i], color=colors[ith], linestyle='-',label=method[ith], linewidth=linewidth, markersize=markersize, marker=markers[i])
             if idx is not None:
                 plt.plot(X[i][idx], YY[i][idx], 'o', markersize=10, color='r')
 
@@ -150,7 +152,7 @@ def gen_plot_vid(frame_num, frame_id, fps, prob_list):
 def gen_plot_vid_v1(frame_num, frame_id, fps, prob_list):
     params = {}
     params['title'] = ' '
-    params['colors'] = ['b-', 'g-', 'r-', 'c-', 'm-',  'y-', 'k-']
+    params['colors'] = ['b', 'g', 'r', 'c', 'm',  'y', 'k', 'mediumpurple', 'mediumseagreen', 'salmon', 'steeblue']
     params['markers'] = [None]
     params['linewidth'] = 3
     params['markersize'] = None
@@ -183,7 +185,7 @@ def gen_plot_vid_v1(frame_num, frame_id, fps, prob_list):
 def gen_plot_vid_v2(frame_num, frame_id, fps, prob_list, vid_prob):
     params = {}
     params['title'] = 'Video Integrity Score = {:.2f}'.format(vid_prob)
-    params['colors'] = ['b-', 'g-', 'r-', 'c-', 'm-',  'y-', 'k-']
+    params['colors'] = ['b-', 'g-', 'r-', 'c-', 'm-',  'y-', 'k-', 'mediumpurple-', 'mediumseagreen-', 'salmon-', 'steeblue-']
     params['markers'] = [None]
     params['linewidth'] = 3
     params['markersize'] = None
@@ -239,7 +241,7 @@ def draw_face_score_v1(im, face_locs, probs):
         x1, y1, x2, y2 = face_loc
         # Real: (0, 255, 0), Fake: (0, 0, 255)
         color = (0, prob * 255, (1 - prob) * 255)
-        cv2.rectangle(im, (x1, y1), (x2, y2), color, 10)
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(im, key+'{:.3f}'.format(prob), (x1, y1 - 10), font, 1, color, 3, cv2.LINE_AA)
+        # cv2.rectangle(im, (x1, y1), (x2, y2), color, 10)
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # cv2.putText(im, key+'{:.3f}'.format(prob), (x1, y1 - 10), font, 1, color, 3, cv2.LINE_AA)
     return im

@@ -215,7 +215,8 @@ class VideoVizWnd (ImageVizNpWnd.ImageVizNpWnd):
     #
     self.playButton = QPushButton ('Play')
     self.playButton.setMaximumWidth (40)
-    self.connect (self.playButton, SIGNAL('clicked()'), self.on_play)
+    # self.connect (self.playButton, SIGNAL('clicked()'), self.on_play)
+    self.playButton.clicked.connect(self.on_play)
 
     self.playSpeedComboBox = QComboBox ()
     self.playSpeedComboBox.addItem('fastest')
@@ -232,11 +233,13 @@ class VideoVizWnd (ImageVizNpWnd.ImageVizNpWnd):
 
     self.procButton = QPushButton ('Proc')
     self.procButton.setMaximumWidth (40)
-    self.connect (self.procButton, SIGNAL('clicked()'), self.on_proc_button)
+    # self.connect (self.procButton, SIGNAL('clicked()'), self.on_proc_button)
+    self.procButton.clicked.connect(self.on_proc_button)
 
     self.stepButton = QPushButton ('Step')
     self.stepButton.setMaximumWidth (40)
-    self.connect (self.stepButton, SIGNAL('clicked()'), self.on_step_button)
+    # self.connect (self.stepButton, SIGNAL('clicked()'), self.on_step_button)
+    self.stepButton.clicked.connect(self.on_step_button)
 
     self.stepSizeSpinBox = QSpinBox ();
     self.stepSizeSpinBox.setRange (1, 999);
@@ -246,23 +249,28 @@ class VideoVizWnd (ImageVizNpWnd.ImageVizNpWnd):
     # to display video time HH:MM:SS.ss at current frame
     self.timeTextEdit = QLineEdit()
     self.timeTextEdit.setMaximumWidth(68)
-    self.connect(self.timeTextEdit, SIGNAL('editingFinished ()'), self.on_time_textbox_update)
+    # self.connect(self.timeTextEdit, SIGNAL('editingFinished ()'), self.on_time_textbox_update)
+    self.timeTextEdit.editingFinished.connect(self.on_time_textbox_update)
 
     self.frameFirstButton = QPushButton('|<')
     self.frameFirstButton.setMaximumWidth (17)
-    self.connect(self.frameFirstButton, SIGNAL('clicked()'), self.on_frame_first)
+    # self.connect(self.frameFirstButton, SIGNAL('clicked()'), self.on_frame_first)
+    self.frameFirstButton.clicked.connect(self.on_frame_first)
 
     self.framePrevButton = QPushButton('<')
     self.framePrevButton.setMaximumWidth (15)
-    self.connect(self.framePrevButton, SIGNAL('clicked()'), self.on_frame_prev)
+    # self.connect(self.framePrevButton, SIGNAL('clicked()'), self.on_frame_prev)
+    self.framePrevButton.clicked.connect(self.on_frame_prev)
 
     self.frameNextButton = QPushButton('>')
     self.frameNextButton.setMaximumWidth (15)
-    self.connect(self.frameNextButton, SIGNAL('clicked()'), self.on_frame_next)
+    # self.connect(self.frameNextButton, SIGNAL('clicked()'), self.on_frame_next)
+    self.frameNextButton.clicked.connect(self.on_frame_next)
 
     self.frameLastButton = QPushButton('>|')
     self.frameLastButton.setMaximumWidth (17)
-    self.connect(self.frameLastButton, SIGNAL('clicked()'), self.on_frame_last)
+    # self.connect(self.frameLastButton, SIGNAL('clicked()'), self.on_frame_last)
+    self.frameLastButton.clicked.connect(self.on_frame_last)
 
     # ==========
     self.sliderLabel = QLabel ('Frame#')
@@ -271,12 +279,14 @@ class VideoVizWnd (ImageVizNpWnd.ImageVizNpWnd):
     self.slider = viz_widget.JumpSlider (Qt.Horizontal)
     self.slider.setTracking (True)
     self.slider.setTickPosition (viz_widget.JumpSlider.TicksBothSides)
-    self.connect (self.slider, SIGNAL('valueChanged(int)'), self.on_slider_update)
+    # self.connect (self.slider, SIGNAL('valueChanged(int)'), self.on_slider_update)
+    self.slider.valueChanged.connect(self.on_slider_update)
 
     # to display frame number
     self.frameTextEdit = QLineEdit()
     self.frameTextEdit.setMaximumWidth(50)
-    self.connect(self.frameTextEdit, SIGNAL('editingFinished ()'), self.on_frame_textbox_update)
+    # self.connect(self.frameTextEdit, SIGNAL('editingFinished ()'), self.on_frame_textbox_update)
+    self.frameTextEdit.editingFinished.connect(self.on_frame_textbox_update)
 
     #
     # Layout with box sizers
