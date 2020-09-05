@@ -465,7 +465,7 @@ class CNNDetection(DeepForCls):
         # Set up env
         pwd = os.path.dirname(__file__)
         root_dir = pwd + '/../'
-        sys.path.append(root_dir + '/externals')
+        sys.path.append(root_dir + '/externals/')
         from CNNDetection import utils
         self.pointer = utils
         self.model = self.pointer.init_model()

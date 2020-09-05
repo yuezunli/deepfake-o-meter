@@ -1,6 +1,6 @@
 # DeepForensics
 
-<img src="assets/logo.jpg" alt="logo" width="150"/>
+<img src="assets/logo.png" alt="logo" width="100"/>
 
 This repository is a python library, which incorperates existing deepfake detection method into an unified framework.
 
@@ -15,7 +15,7 @@ To date, this toolbox supports following methods:
 | ClassNSeg   |  py3, pytorch-1.0.1 | - | decoder-encoder | [Link](https://drive.google.com/file/d/128RkifOvKjUIPX7khU0FdeiQBQoKk4Tt/view?usp=sharing) |
 | CapsuleNet  |  py3, pytorch-1.0.1 | - | capsuleNet | [Link](https://drive.google.com/file/d/1jwi2L7CI0K9vOlTNsQfmWGjFNQAiPUte/view?usp=sharing) |
 | FWA         |  py2, tf-1.5        | - | resnet | [Link](https://drive.google.com/open?id=1mMeVpNub67dNvSvjvwYbx047g1snGo1m) |
-| DSPFWA     |  py3, pytorch-1.0.1 | - | resnet50 | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
+| DSPFWA      |  py3, pytorch-1.0.1 | - | resnet50 | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
 | Upconv      |  py3                | - | SVM | [Link](https://drive.google.com/file/d/10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA/view?usp=sharing) |
 | WM          |  py3, pytorch-1.1.0 | - | efficientnet_b3, XceptionNet | [Link](https://drive.google.com/file/d/1y8J2wq6V_37wiWvf1zyDmc5HEgMMthsn/view?usp=sharing) |
 | SelimSefer  |  py3, pytorch-1.1.0 | - | efficientnet_b7 | [Link](https://drive.google.com/file/d/1o5zgH5rEoRr1_UAMf2XMj9WBV2o7c1F0/view?usp=sharing) |
@@ -23,24 +23,43 @@ To date, this toolbox supports following methods:
 
 
 
-For the details of each method, please look into our [paper](https://arxiv.org/pdf/1909.12962.pdf.)
 
 ## Quick Start
 
-The original method (with slight modification for intergration) can be downloaded from the link shown in above table. Unzip the method to folder `externals`.
+1. The original method (with slight modification for intergration) can be downloaded from the link shown in above table. Unzip the method to folder `externals`. You may need to make a new folder following below structure.
 
-Before running the demo code, you should first set up the docker environment for each method. To set up the environment, you should first enter the direction of the corresponding method under the dockerfile direction, and run the following code:
+   ```
+   Root --- deepfor ----- externals
+         |- demo.py    |- methods
+         |- ...        |- ...
+         
+   ```
 
-```
-docker build -t Env-Name .
-```
+2. `demo.py` is a demo script that shows how to run different methods. In our implementation, each method corresponds to a class, eg, `ClassNSeg()`. 
+   ```
+   import deepfor, cv2
+ 
+   # Read image
+   img = cv2.imread('test_img.png')
+   conf = deepfor.ClassNSeg().run(img) # conf of fake
+   print('Fake confidence score is: {}'.format(conf))
+
+   ```
+   The class name of each method can be found in `demo.py`
+
+3. Since different methods usually need different environment, we provides docker images for each method to save time. Following is an example of setting up environment.
+
+   ```
+   # Build docker enironment from docker image, eg,
+   docker build -t classnseg ./dockerfile/ClassNSeg/
+   ```
 
 
-Then run the demo code:
+   Then run the demo code:
 
-```
-docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /Path/to/the/deepforensics/:/deepforensics/ Env-Name python deepforensics/demo.py
-```
+   ```
+   docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepforensics/:/deepforensics/ classnseg python deepforensics/demo.py --method ClassNSeg
+   ```
 
 ## Logs
 * [4/13/2020] The first stage is all set, where seven methods are included.
@@ -80,7 +99,35 @@ We also provide a GUI interface for users. The detail of usage procedure is show
 
 ## Contributors
 * [Yuezun Li](https://www.albany.edu/~yl149995/)
-* Pu Sun
 * Cong Zhang
+* Pu Sun 
 * Ming-ching Chang
 * Siwei Lyu
+
+
+### Reference
+
+<sup>
+CapsuleNet: Nguyen, et al. Use of a Capsule Network to Detect Fake Images and Videos.[J]. arXiv, 2019. 
+
+ClassNSeg: Nguyen, et al. "Multi-task learning for detecting and segmenting manipulated facial images and videos." arXiv, 2019. 
+
+DSP-FWA: Li, etal. [Github](https://github.com/danmohaha/DSP-FWA)
+
+FWA: Li, etal. "Exposing deepfake videos by detecting face warping artifacts." CVPRW, 2019.
+
+MesoNet: Yang, etal. "Exposing deep fakes using inconsistent head poses." ICASSP, 2019.
+
+Upconv: Durall, etal. "Watch your Up-Convolution: CNN Based Generative Deep Neural Networks are Failing to Reproduce Spectral Distributions." CVPR, 2020. 
+
+VA: Matern, etal. "Exploiting visual artifacts to expose deepfakes and face manipulations." WACVW, 2019.
+
+XceptionNet: Rossler, et al. "Faceforensics++: Learning to detect manipulated facial images." ICCV. 2019. 
+
+CNNDetection: Wang, et al. CNN-generated images are surprisingly easy to spot... for now.[J]. arXiv, 2019. 
+
+Selim: 1st of the DFDC competition [Github](https://github.com/selimsef/dfdc_deepfake_challenge)
+
+WM: 2nd of the DFDC competition [Github](https://github.com/cuihaoleo/kaggle-dfdc)
+
+</sup>
