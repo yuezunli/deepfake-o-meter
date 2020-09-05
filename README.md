@@ -1,4 +1,4 @@
-# DeepForensics
+# deepfake-o-meter
 
 <img src="assets/logo.png" alt="logo" width="100"/>
 
@@ -36,7 +36,7 @@ To date, this toolbox supports following methods:
    ```
 
 2. `demo.py` is a demo script that shows how to run different methods. In our implementation, each method corresponds to a class, eg, `ClassNSeg()`. 
-   ```
+   ```python
    import deepfor, cv2
  
    # Read image
