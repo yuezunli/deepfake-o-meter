@@ -62,6 +62,7 @@ To date, this toolbox supports following methods:
    docker run --gpus all -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepfake-o-meter:/deepfake-o-meter/ classnseg python deepfake-o-meter/demo.py --img=/deepfake-o-meter/test_img.png  --name=ClassNSeg
    ```
 
+   Note the first time to install the dock environment may take a while, but it can be reused since then.
 ## Logs
 * [4/13/2020] The first stage is all set, where seven methods are included.
 
