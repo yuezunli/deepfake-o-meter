@@ -9,24 +9,6 @@ from facenet_pytorch.models.mtcnn import MTCNN
 from torchvision.transforms import Normalize
 
 
-def postprocess_frame(frame, insets=(0, 0)):
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    if insets[0] > 0:
-        W = frame.shape[1]
-        p = int(W * self.insets[0])
-        frame = frame[:, p:-p, :]
-
-    if insets[1] > 0:
-        H = frame.shape[1]
-        q = int(H * self.insets[1])
-        frame = frame[q:-q, :, :]
-
-    return frame
-
-
-
-
 class VideoReader:
     """Helper class for reading one or more frames from a video file."""
 
@@ -205,18 +187,17 @@ class FaceExtractor:
 
     # alter by cz
     def process_image(self, frame):
-        frame = postprocess_frame(frame)
-        frame = np.stack(frame)
 
         h, w = frame.shape[:2]
         img = Image.fromarray(frame.astype(np.uint8))
         img = img.resize(size=[s // 2 for s in img.size])
         batch_boxes, probs = self.detector.detect(img, landmarks=False)
+
         faces = []
         scores = []
 
-        if batch_boxes is not None:
-            for bbox, score in zip(batch_boxes, probs):
+        for bbox, score in zip(batch_boxes, probs):
+            if bbox is not None:
                 xmin, ymin, xmax, ymax = [int(b * 2) for b in bbox]
                 w = xmax - xmin
                 h = ymax - ymin
@@ -224,8 +205,66 @@ class FaceExtractor:
                 p_w = w // 3
                 crop = frame[max(ymin - p_h, 0):ymax + p_h, max(xmin - p_w, 0):xmax + p_w]
                 faces.append(crop)
-                scores.append(score)
-        return faces, scores
+                scores.append([max(ymin - p_h, 0), ymax + p_h, max(xmin - p_w, 0), xmax + p_w])
+            return faces, scores
+
+    def process_videos(self, input_dir, filenames, video_idxs):
+        videos_read = []
+        frames_read = []
+        frames = []
+        results = []
+        for video_idx in video_idxs:
+            # Read the full-size frames from this video.
+            filename = filenames[video_idx]
+            video_path = os.path.join(input_dir, filename)
+            result = self.video_read_fn(video_path)
+            # Error? Then skip this video.
+            if result is None: continue
+
+            videos_read.append(video_idx)
+
+            # Keep track of the original frames (need them later).
+            my_frames, my_idxs = result
+
+            frames.append(my_frames)
+            frames_read.append(my_idxs)
+            for i, frame in enumerate(my_frames):
+                h, w = frame.shape[:2]
+                img = Image.fromarray(frame.astype(np.uint8))
+                img = img.resize(size=[s // 2 for s in img.size])
+
+                batch_boxes, probs = self.detector.detect(img, landmarks=False)
+
+                faces = []
+                scores = []
+                if batch_boxes is None:
+                    continue
+                for bbox, score in zip(batch_boxes, probs):
+                    if bbox is not None:
+                        xmin, ymin, xmax, ymax = [int(b * 2) for b in bbox]
+                        w = xmax - xmin
+                        h = ymax - ymin
+                        p_h = h // 3
+                        p_w = w // 3
+                        crop = frame[max(ymin - p_h, 0):ymax + p_h, max(xmin - p_w, 0):xmax + p_w]
+                        faces.append(crop)
+                        scores.append(score)
+
+                frame_dict = {"video_idx": video_idx,
+                              "frame_idx": my_idxs[i],
+                              "frame_w": w,
+                              "frame_h": h,
+                              "faces": faces,
+                              "scores": scores}
+                results.append(frame_dict)
+
+        return results
+
+    def process_video(self, video_path):
+        """Convenience method for doing face extraction on a single video."""
+        input_dir = os.path.dirname(video_path)
+        filenames = [os.path.basename(video_path)]
+        return self.process_videos(input_dir, filenames, [0])
 
 
 def init_model():
@@ -311,7 +350,6 @@ def predict_on_image(faces, input_size, models, strategy=np.mean,
                 resized_face = put_to_center(resized_face, input_size)
                 if apply_compression:
                     resized_face = image_compression(resized_face, quality=90, image_type=".jpg")
-                x[n] = resized_face
                 n += 1
 
             if n > 0:
@@ -330,7 +368,7 @@ def predict_on_image(faces, input_size, models, strategy=np.mean,
                             bpred = y_pred.cpu().numpy()[:n]
                         else:
                             bpred = y_pred.cpu().numpy()
-                        preds.append(bpred)
+                        preds.append(strategy(bpred))
                     return np.mean(preds)
-        else:
-            return 0.5
+            else:
+                return 0.5

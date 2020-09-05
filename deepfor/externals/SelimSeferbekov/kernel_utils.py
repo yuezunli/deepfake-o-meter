@@ -1,23 +1,18 @@
 import os
-from adversary import Attack
+
 import cv2
 import numpy as np
-import torch.nn as nn
 import torch
 from PIL import Image
-from torch.autograd import Variable
 from albumentations.augmentations.functional import image_compression
 from facenet_pytorch.models.mtcnn import MTCNN
 from concurrent.futures import ThreadPoolExecutor
 
 from torchvision.transforms import Normalize
 
-# mean = [0.485, 0.456, 0.406]
-# std = [0.229, 0.224, 0.225]
-mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32)
-std = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32)
-un_normalize_transform = Normalize((-mean / std).tolist(), (1.0 / std).tolist())
-normalize_transform = Normalize(mean.tolist(), std.tolist())
+mean = [0.485, 0.456, 0.406]
+std = [0.229, 0.224, 0.225]
+normalize_transform = Normalize(mean, std)
 
 
 class VideoReader:
@@ -63,7 +58,46 @@ class VideoReader:
         capture.release()
         return result
 
+    def read_random_frames(self, path, num_frames, seed=None):
+        """Picks the frame indices at random.
+        Arguments:
+            path: the video file
+            num_frames: how many frames to read, -1 means the entire video
+                (warning: this will take up a lot of memory!)
+        """
+        assert num_frames > 0
+        np.random.seed(seed)
 
+        capture = cv2.VideoCapture(path)
+        frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        if frame_count <= 0: return None
+
+        frame_idxs = sorted(np.random.choice(np.arange(0, frame_count), num_frames))
+        result = self._read_frames_at_indices(path, capture, frame_idxs)
+
+        capture.release()
+        return result
+
+    def read_frames_at_indices(self, path, frame_idxs):
+        """Reads frames from a video and puts them into a NumPy array.
+        Arguments:
+            path: the video file
+            frame_idxs: a list of frame indices. Important: should be
+                sorted from low-to-high! If an index appears multiple
+                times, the frame is still read only once.
+        Returns:
+            - a NumPy array of shape (num_frames, height, width, 3)
+            - a list of the frame indices that were read
+        Reading stops if loading a frame fails, in which case the first
+        dimension returned may actually be less than num_frames.
+        Returns None if an exception is thrown for any reason, or if no
+        frames were read.
+        """
+        assert len(frame_idxs) > 0
+        capture = cv2.VideoCapture(path)
+        result = self._read_frames_at_indices(path, capture, frame_idxs)
+        capture.release()
+        return result
 
     def _read_frames_at_indices(self, path, capture, frame_idxs):
         try:
@@ -100,6 +134,41 @@ class VideoReader:
                 print("Exception while reading movie %s" % path)
             return None
 
+    def read_middle_frame(self, path):
+        """Reads the frame from the middle of the video."""
+        capture = cv2.VideoCapture(path)
+        frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        result = self._read_frame_at_index(path, capture, frame_count // 2)
+        capture.release()
+        return result
+
+    def read_frame_at_index(self, path, frame_idx):
+        """Reads a single frame from a video.
+        If you just want to read a single frame from the video, this is more
+        efficient than scanning through the video to find the frame. However,
+        for reading multiple frames it's not efficient.
+        My guess is that a "streaming" approach is more efficient than a
+        "random access" approach because, unless you happen to grab a keyframe,
+        the decoder still needs to read all the previous frames in order to
+        reconstruct the one you're asking for.
+        Returns a NumPy array of shape (1, H, W, 3) and the index of the frame,
+        or None if reading failed.
+        """
+        capture = cv2.VideoCapture(path)
+        result = self._read_frame_at_index(path, capture, frame_idx)
+        capture.release()
+        return result
+
+    def _read_frame_at_index(self, path, capture, frame_idx):
+        capture.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+        ret, frame = capture.read()
+        if not ret or frame is None:
+            if self.verbose:
+                print("Error retrieving frame %d from movie %s" % (frame_idx, path))
+            return None
+        else:
+            frame = self._postprocess_frame(frame)
+            return np.expand_dims(frame, axis=0), [frame_idx]
 
     def _postprocess_frame(self, frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -116,21 +185,6 @@ class VideoReader:
 
         return frame
 
-def postprocess_frame(frame, insets=(0, 0)):
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    if insets[0] > 0:
-        W = frame.shape[1]
-        p = int(W * self.insets[0])
-        frame = frame[:, p:-p, :]
-
-    if insets[1] > 0:
-        H = frame.shape[1]
-        q = int(H * self.insets[1])
-        frame = frame[q:-q, :, :]
-
-    return frame
-
 
 class FaceExtractor:
     def __init__(self, video_read_fn):
@@ -139,18 +193,17 @@ class FaceExtractor:
 
     # alter by cz
     def process_image(self, frame):
-        frame = postprocess_frame(frame)
-        frame = np.stack(frame)
 
         h, w = frame.shape[:2]
         img = Image.fromarray(frame.astype(np.uint8))
         img = img.resize(size=[s // 2 for s in img.size])
         batch_boxes, probs = self.detector.detect(img, landmarks=False)
+
         faces = []
         scores = []
 
-        if batch_boxes is not None:
-            for bbox, score in zip(batch_boxes, probs):
+        for bbox, score in zip(batch_boxes, probs):
+            if bbox is not None:
                 xmin, ymin, xmax, ymax = [int(b * 2) for b in bbox]
                 w = xmax - xmin
                 h = ymax - ymin
@@ -159,7 +212,7 @@ class FaceExtractor:
                 crop = frame[max(ymin - p_h, 0):ymax + p_h, max(xmin - p_w, 0):xmax + p_w]
                 faces.append(crop)
                 scores.append(score)
-        return faces, scores
+            return faces, scores
 
     def process_videos(self, input_dir, filenames, video_idxs):
         videos_read = []
@@ -264,154 +317,39 @@ def isotropically_resize_image(img, size, interpolation_down=cv2.INTER_AREA, int
 # altred by cz
 def predict_on_image(face_extractor, img, input_size, models, strategy=np.mean,
                      apply_compression=False):
-    faces, scores = face_extractor.process_image(img)
-    if len(faces) > 0:
-        x = np.zeros((len(faces), input_size, input_size, 3), dtype=np.uint8)
-        n = 0
-        for i in range(np.shape(faces)[0]):
-            face = faces[i]
-            resized_face = isotropically_resize_image(face, input_size)
-            resized_face = put_to_center(resized_face, input_size)
-            if apply_compression:
-                resized_face = image_compression(resized_face, quality=90, image_type=".jpg")
-            x[n] = resized_face
-            n += 1
+        faces, scores = face_extractor.process_image(img)
+        if len(faces) > 0:
+            x = np.zeros((len(faces), input_size, input_size, 3), dtype=np.uint8)
+            n = 0
+            for i in range(np.shape(faces)[0]):
+                face = faces[i]
+                resized_face = isotropically_resize_image(face, input_size)
+                resized_face = put_to_center(resized_face, input_size)
+                if apply_compression:
+                    resized_face = image_compression(resized_face, quality=90, image_type=".jpg")
+                n += 1
 
-        if n > 0:
-            x = torch.tensor(x, device="cuda").float()
-            # x = Variable(x, requires_grad=True)
-            # Preprocess the images.
-            x = x.permute((0, 3, 1, 2))
-            for i in range(len(x)):
-                x[i] = normalize_transform(x[i] / 255.)
-            # Make a prediction, then take the average.
-            # with torch.no_grad():
-            preds = []
-            for model in models:
-
-                y_pred = model(x[:n].half())
-                import pdb; pdb.set_trace()
-                y_pred = torch.sigmoid(y_pred.squeeze())
-                if n > 1:
-                    bpred = y_pred.cpu().detach().numpy()[:n]
-                else:
-                    bpred = y_pred.cpu().detach().numpy()
-                print(bpred)
-                preds.append(bpred)
-            return np.mean(preds)
-    else:
-        return 0.5
-
-
-def predict_on_image_adv(face_extractor, img, input_size,  models, strategy=np.mean,
-                     apply_compression=False):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    faces, scores = face_extractor.process_image(img)
-    if len(faces) > 0:
-        x = np.zeros((len(faces), input_size, input_size, 3), dtype=np.uint8)
-        n = 0
-        for i in range(np.shape(faces)[0]):
-            face = faces[i]
-            resized_face = isotropically_resize_image(face, input_size)
-            resized_face = put_to_center(resized_face, input_size)
-            if apply_compression:
-                resized_face = image_compression(resized_face, quality=90, image_type=".jpg")
-            x[n] = resized_face
-            n += 1
-
-        # im3_s =  np.zeros((np.shape(x)[2],np.shape(x)[2],3))
-        # im3_s[:,:,0] = x[0, :, :,2]
-        # im3_s[:,:,1] = x[0, :, :,1]
-        # im3_s[:,:,2] = x[0, :, :,0]
-        # cv2.imwrite('adv.jpg' , im3_s)
-
-
-        if n > 0:
-            x = torch.tensor(x).float()
-
-
-            # x = torch.tensor(xs, device="cuda").float()
-            # x = x.to(torch.device("cuda:1"))
-            # x = x.to(torch.device("cuda:0"))
-
-
-            # Preprocess the images.
-            x = x.permute((0, 3, 1, 2))
-            # xxxx = x
-            # for i in range(len(x)):
-            #     x[i] = normalize_transform(x[i] / 255.)
-            # Make a prediction, then take the average.
-            # with torch.no_grad():
-
-
-            # im3_s =  np.zeros((np.shape(x)[2],np.shape(x)[2],3))
-            # im3_s[:,:,0] = x[0,2, :, :]*255
-            # im3_s[:,:,1] = x[0,1, :, :]*255
-            # im3_s[:,:,2] = x[0,0, :, :]*255
-            # cv2.imwrite('adv.jpg' , im3_s)
-
-            attack = Attack(criterion=nn.CrossEntropyLoss(), models=models)
-            # score = callscore(x[:n], models)
-
-            y_true = Variable(torch.tensor(np.array([0])).to(device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')))
-            xx =  x[:n]
-            targeted = False
-            iteration = 1
-            eps=0.1
-            alpha=2/255
-
-
-            # x_adv_s = xx
-            # for i in range(len(x_adv_s)):
-            #     x_adv_s[i] = un_normalize_transform(x_adv_s[i])
-
-            # im3 = x_adv_s.cpu().detach().numpy()*255
-            # im3_s =  np.zeros((np.shape(im3)[2],np.shape(im3)[2],3))
-            # im3_s[:,:,0] = im3[0, 2, :, :]
-            # im3_s[:,:,1] = im3[0, 1, :, :]
-            # im3_s[:,:,2] = im3[0, 0, :, :]
-            # cv2.imwrite('adv1.jpg' , im3_s)
-            # import pdb; pdb.set_trace()
-
-
-            if iteration == 1:
-                if targeted:
-                    x_adv = attack.fgsm(xx, y_target, True, eps)
-                else:
-                    x_adv = attack.fgsm(xx, y_true, False, eps)
+            if n > 0:
+                x = torch.tensor(x, device="cuda").float()
+                # Preprocess the images.
+                x = x.permute((0, 3, 1, 2))
+                for i in range(len(x)):
+                    x[i] = normalize_transform(x[i] / 255.)
+                # Make a prediction, then take the average.
+                with torch.no_grad():
+                    preds = []
+                    for model in models:
+                        y_pred = model(x[:n].half())
+                        y_pred = torch.sigmoid(y_pred.squeeze())
+                        if n > 1:
+                            bpred = y_pred.cpu().numpy()[:n]
+                        else:
+                            bpred = y_pred.cpu().numpy()
+                        preds.append(strategy(bpred))
+                    return np.mean(preds)
             else:
-                if targeted:
-                    x_adv = attack.i_fgsm(xx, y_target, True, eps, alpha, iteration)
-                else:
-                    x_adv = attack.i_fgsm(xx, y_true, False, eps, alpha, iteration)
+                return 0.5
 
-
-
-            # im3 = x_adv.cpu().detach().numpy()*255
-            # im3_s =  np.zeros((np.shape(im3)[2],np.shape(im3)[2],3))
-            # im3_s[:,:,0] = im3[0, 2, :, :]
-            # im3_s[:,:,1] = im3[0, 1, :, :]
-            # im3_s[:,:,2] = im3[0, 0, :, :]
-            # cv2.imwrite('adv111.jpg' , im3_s)
-
-            # adv_outputs1 = calscore(x_adv)
-            # print(adv_outputs1)
-            return 0.5
-
-    else:
-        return 0.5
-def callscore(im, models):
-    preds = []
-    for model in models:
-        y_pred = model(im.half())
-        y_pred = torch.sigmoid(y_pred.squeeze())
-        # if n > 1:
-        #     bpred = y_pred.cpu().numpy()[:n]
-        # else:
-        bpred = y_pred.cpu().detach().numpy()
-        print(bpred)
-        preds.append(bpred)
-    return np.mean(preds)
 
 
 def predict_on_video(face_extractor, video_path, batch_size, input_size, models, strategy=np.mean,
@@ -424,6 +362,7 @@ def predict_on_video(face_extractor, video_path, batch_size, input_size, models,
             n = 0
             for frame_data in faces:
                 for face in frame_data["faces"]:
+                    import pdb; pdb.set_trace()
                     resized_face = isotropically_resize_image(face, input_size)
                     resized_face = put_to_center(resized_face, input_size)
                     if apply_compression:
@@ -447,7 +386,6 @@ def predict_on_video(face_extractor, video_path, batch_size, input_size, models,
                         y_pred = torch.sigmoid(y_pred.squeeze())
                         bpred = y_pred[:n].cpu().numpy()
                         preds.append(strategy(bpred))
-                        print(bpred)
                     return np.mean(preds)
     except Exception as e:
         print("Prediction error on video %s: %s" % (video_path, str(e)))

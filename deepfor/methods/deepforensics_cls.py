@@ -180,7 +180,7 @@ class VA(DeepForCls):
         # Model prediction
         scores = self.pointer.predict(im, 'deepfake', self.model, self.facelib._face_detector, self.facelib._lmark_predictor)
         # conf = {'Score_MLP': scores[0][0], 'Score_LogReg': scores[0][1]}
-        if scores:
+        if scores is not None:
             return scores[0][0]
         else:
             return 0.5
@@ -362,7 +362,7 @@ class Upconv(DeepForCls):
             cropped_face = im[y:y + size, x:x + size]
             return cropped_face, [x, y, x + size, y + size]
         else:
-            return [], []
+            return None, None
 
     def preproc(self, im):
         im = self.pointer.preprocess_image(im)
@@ -378,9 +378,12 @@ class Upconv(DeepForCls):
         return label
 
     def run(self, im):
-        cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
+        cropped_face, boxes = self.crop_face(im)
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+        else:
+            conf = 0.5
         return conf
 
 
@@ -404,7 +407,7 @@ class WM(DeepForCls):
         return self.pointer.crop_face(im)
 
     def get_softlabel(self, im):
-        output = self.pointer.predict(im, self.model)
+        output = self.pointer.predict(im, self.model)[0]
         return output
 
     def get_hardlabel(self, im):
@@ -452,5 +455,40 @@ class SelimSeferbekov(DeepForCls):
     def run(self, im):
         cropped_face, _ = self.crop_face(im)
         preproced_face = self.preproc(cropped_face)
+        conf = self.get_softlabel(preproced_face)
+        return conf
+
+
+class CNNDetection(DeepForCls):
+    def __init__(self):
+        super(CNNDetection, self).__init__()
+        # Set up env
+        pwd = os.path.dirname(__file__)
+        root_dir = pwd + '/../'
+        sys.path.append(root_dir + '/externals')
+        from CNNDetection import utils
+        self.pointer = utils
+        self.model = self.pointer.init_model()
+
+
+    def preproc(self, im):
+        im = self.pointer.preprocess_image(im)
+        return im
+
+    def crop_face(self, im):
+        return self.pointer.crop_face(im)
+
+    def get_softlabel(self, im):
+        output = self.pointer.predict(im, self.model)
+        return output
+
+    def get_hardlabel(self, im):
+        conf = self.get_softlabel(im)
+        label = np.argmax(conf)
+        return label
+
+    def run(self, im):
+        # cropped_face = self.crop_face(im)
+        preproced_face = self.preproc(im)
         conf = self.get_softlabel(preproced_face)
         return conf

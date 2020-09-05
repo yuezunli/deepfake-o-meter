@@ -1,8 +1,9 @@
 import cv2, os
 import deepfor
+import warnings
 
+warnings.filterwarnings('ignore')
 # Read image
-os.environ["CUDA_VISIBLE_DEVICES"]= '3'
-img = cv2.imread('test_img.png')
-conf = deepfor.FWA().run(img) # conf of fake
+img = cv2.imread('deepforensics/test_img.png')
+conf = deepfor.ClassNSeg().run(img) # conf of fake
 print('Fake confidence score is: {}'.format(conf))
