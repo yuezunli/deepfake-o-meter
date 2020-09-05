@@ -7,15 +7,15 @@ This repository is a python library, which incorperates existing deepfake detect
 ## Introduction
 To date, this toolbox supports following methods:
 
-| Methods     | Platform            | Required Packages | Modes  | Download | Dockerfile|
+| Methods     | Platform            | Required Packages | Modes  | Download |
 |----------   |:-------------:      |:------:            |:------: | :------:  |
 | XceptionNet |  py3, pytorch-1.0.1 | pretrainmodels | c23, c40, raw | [Link](https://drive.google.com/open?id=1FjbSxvLR0YVao5ykLGIFj47FVe6eDTNh) |
 | MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 | [Link](https://drive.google.com/open?id=13ChUtbxuqBS4-kRv8BkSKcb-8hDUi3bO) |  
 | VA          |  py3                | - | - | [Link](https://drive.google.com/open?id=1MI8YNJ9tnHD6551bxLDl0BngcQyFXxNB) |
 | ClassNSeg   |  py3, pytorch-1.0.1 | - | - | [Link](https://drive.google.com/open?id=1wMpamO38F2tEYH2iNtUVv2yrt2b1osIG) |
-| Capsule     |  py3, pytorch-1.0.1 | - | - | [Link](https://drive.google.com/open?id=13XLA8j_Y7XhW8a7opEh4vQvmr3QyOSmz) |
+| CapsuleNet  |  py3, pytorch-1.0.1 | - | - | [Link](https://drive.google.com/open?id=13XLA8j_Y7XhW8a7opEh4vQvmr3QyOSmz) |
 | FWA         |  py2, tf-1.5        | - | - | [Link](https://drive.google.com/open?id=1mMeVpNub67dNvSvjvwYbx047g1snGo1m) |
-| DSP-FWA     |  py3, pytorch-1.0.1 | - | - | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
+| DSPFWA     |  py3, pytorch-1.0.1 | - | - | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
 | Upconv      |  py3                | - | - | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
 | WM          |  py3, pytorch-1.1.0 | - | - | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
 | SelimSefer  |  py3, pytorch-1.1.0 | - | - | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
@@ -31,7 +31,7 @@ The original method (with slight modification for intergration) can be downloade
 
 Before running the demo code, you should first set up the docker environment for each method. You can set up the docker environment from the dockerfile from the link shown in the above table.
 
-To set up the environment, you should first enter the  directort of the dockerfile, and run the following code:
+To set up the environment, you should first enter the direction of the corresponding method, and run the following code:
 
 ```
 docker build -t Env-Name .
