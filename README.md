@@ -10,16 +10,16 @@ To date, this toolbox supports following methods:
 | Methods     | Platform            | Required Packages | Models  | Download |
 |----------   |:-------------:      |:------:            |:------: | :------:  |
 | XceptionNet |  py3, pytorch-1.0.1 | pretrainmodels | c23, c40, raw | [Link](https://drive.google.com/open?id=1FjbSxvLR0YVao5ykLGIFj47FVe6eDTNh) |
-| MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 | [Link](https://drive.google.com/open?id=13ChUtbxuqBS4-kRv8BkSKcb-8hDUi3bO) |  
-| VA          |  py3                | - | svm | [Link](https://drive.google.com/open?id=1MI8YNJ9tnHD6551bxLDl0BngcQyFXxNB) |
-| ClassNSeg   |  py3, pytorch-1.0.1 | - | decoder-encoder | [Link](https://drive.google.com/open?id=1wMpamO38F2tEYH2iNtUVv2yrt2b1osIG) |
-| CapsuleNet  |  py3, pytorch-1.0.1 | - | capsuleNet | [Link](https://drive.google.com/open?id=13XLA8j_Y7XhW8a7opEh4vQvmr3QyOSmz) |
+| MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 | [Link](https://drive.google.com/file/d/1QkwJSz7dH-3gCisqQpu-9fz3K7Ozl2ZM/view?usp=sharing) |  
+| VA          |  py3                | - | svm | [Link](https://drive.google.com/file/d/1NZEa9YzsFVzhskRGoIl0e1XWVvpTYhOC/view?usp=sharing) |
+| ClassNSeg   |  py3, pytorch-1.0.1 | - | decoder-encoder | [Link](https://drive.google.com/file/d/128RkifOvKjUIPX7khU0FdeiQBQoKk4Tt/view?usp=sharing) |
+| CapsuleNet  |  py3, pytorch-1.0.1 | - | capsuleNet | [Link](https://drive.google.com/file/d/1jwi2L7CI0K9vOlTNsQfmWGjFNQAiPUte/view?usp=sharing) |
 | FWA         |  py2, tf-1.5        | - | resnet | [Link](https://drive.google.com/open?id=1mMeVpNub67dNvSvjvwYbx047g1snGo1m) |
 | DSPFWA     |  py3, pytorch-1.0.1 | - | resnet50 | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
-| Upconv      |  py3                | - | SVM | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
-| WM          |  py3, pytorch-1.1.0 | - | efficientnet_b3, XceptionNet | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
-| SelimSefer  |  py3, pytorch-1.1.0 | - | efficientnet_b7 | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
-| CNNDetection|  py3, pytorch-1.1.0 | - | resnet50 | [Link](https://drive.google.com/open?id=10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA) |
+| Upconv      |  py3                | - | SVM | [Link](https://drive.google.com/file/d/10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA/view?usp=sharing) |
+| WM          |  py3, pytorch-1.1.0 | - | efficientnet_b3, XceptionNet | [Link](https://drive.google.com/file/d/1y8J2wq6V_37wiWvf1zyDmc5HEgMMthsn/view?usp=sharing) |
+| SelimSefer  |  py3, pytorch-1.1.0 | - | efficientnet_b7 | [Link](https://drive.google.com/file/d/1o5zgH5rEoRr1_UAMf2XMj9WBV2o7c1F0/view?usp=sharing) |
+| CNNDetection|  py3, pytorch-1.1.0 | - | resnet50 | [Link](https://drive.google.com/file/d/1OP6tzmzA8RdD9JZUER4FeOLslzUy3Kxc/view?usp=sharing) |
 
 
 
