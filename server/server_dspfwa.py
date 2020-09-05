@@ -1,6 +1,7 @@
 import sys, os
-sys.path.append(os.path.dirname(__file__) + '/../')
-import pickle, cv2, deepfor
+sys.path.append("..")
+import pickle, cv2
+import deepfor
 import numpy as np
 from flask import Flask, request, jsonify
 
@@ -13,10 +14,10 @@ def predict():
     data = request.get_json(force = True)
     rois, loc = model.crop_face(np.array(data['feature']).astype(np.uint8))
     conf = model.get_softlabel(rois)
-    res = [loc, conf]
+    res = [loc[0], loc[1], loc[2], loc[3], conf]
     # conf = 0
     return jsonify(str(res))
 
 
 if __name__ == '__main__':
-    app.run(debug = False, host = '0.0.0.0')
+    app.run(debug = True, host = '0.0.0.0', port='5002')

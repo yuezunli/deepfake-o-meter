@@ -87,7 +87,7 @@ class XceptionNet(DeepForCls):
             cropped_face = im[y:y+size, x:x+size]
             return cropped_face, [x, y, x+size, y+size]
         else:
-            return [], []
+            return None, []
 
     def get_softlabel(self, im):
         # Model prediction
@@ -101,10 +101,13 @@ class XceptionNet(DeepForCls):
         return label
 
     def run(self, im):
-        cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        cropped_face, _ = self.crop_face(im)
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class ClassNSeg(DeepForCls):
@@ -146,9 +149,12 @@ class ClassNSeg(DeepForCls):
 
     def run(self, im):
         cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class VA(DeepForCls):
@@ -173,8 +179,11 @@ class VA(DeepForCls):
     def get_softlabel(self, im):
         # Model prediction
         scores = self.pointer.predict(im, 'deepfake', self.model, self.facelib._face_detector, self.facelib._lmark_predictor)
-        conf = {'Score_MLP': scores[0][0], 'Score_LogReg': scores[0][1]}
-        return conf
+        # conf = {'Score_MLP': scores[0][0], 'Score_LogReg': scores[0][1]}
+        if scores is not None:
+            return scores[0][0]
+        else:
+            return 0.5
 
     def get_hardlabel(self, im):
         conf = self.get_softlabel(im)
@@ -216,7 +225,9 @@ class CapsuleNet(DeepForCls):
             face = faces[0]
             x, y, size = self.pointer.get_boundingbox(face, width, height)
             cropped_face = im[y:y+size, x:x+size]
-        return cropped_face
+            return cropped_face
+        else:
+            return None
 
     def get_softlabel(self, im):
         # Model prediction
@@ -231,9 +242,12 @@ class CapsuleNet(DeepForCls):
 
     def run(self, im):
         cropped_face = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        if cropped_face is  not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class FWA(DeepForCls):
@@ -244,14 +258,14 @@ class FWA(DeepForCls):
         sys.path.append(root_dir + '/externals/FWA')
         import fwa_utils
         self.pointer = fwa_utils
-        self.solver = self.pointer.init_model()
+        self.solver, self.cfg  = self.pointer.init_model()
         self.facelib = Flib()
         self.facelib.set_face_detector()
         self.facelib.set_landmarks_predictor(68)
 
     def crop_face(self, im):
         loc, point = self.facelib.get_face_loc_landmarks(im)[0]
-        return self.pointer.crop(im, point), loc
+        return self.pointer.crop(im, point,  self.cfg), loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.solver, im) # fake conf
@@ -271,7 +285,7 @@ class DSPFWA(DeepForCls):
         sys.path.append(root_dir + '/externals/')
         from DSP_FWA import dsp_fwa_utils
         self.pointer = dsp_fwa_utils
-        self.net = self.pointer.init_model()
+        self.net= self.pointer.init_model()
         self.facelib = Flib()
         self.facelib.set_face_detector()
         self.facelib.set_landmarks_predictor(68)
@@ -348,7 +362,7 @@ class Upconv(DeepForCls):
             cropped_face = im[y:y + size, x:x + size]
             return cropped_face, [x, y, x + size, y + size]
         else:
-            return [], []
+            return None, None
 
     def preproc(self, im):
         im = self.pointer.preprocess_image(im)
@@ -364,62 +378,73 @@ class Upconv(DeepForCls):
         return label
 
     def run(self, im):
+        cropped_face, boxes = self.crop_face(im)
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+        else:
+            conf = 0.5
+        return conf
+
+
+class WM(DeepForCls):
+    def __init__(self):
+        super(WM, self).__init__()
+        # Set up env
+        pwd = os.path.dirname(__file__)
+        root_dir = pwd + '/../'
+        sys.path.append(root_dir + '/externals/WM')
+        import wm_util
+        self.pointer = wm_util
+        self.model = self.pointer.init_model()
+
+
+    def preproc(self, im):
+        im, box = self.pointer.preprocess_image(im)
+        return im
+
+    def crop_face(self, im):
+        return self.pointer.crop_face(im)
+
+    def get_softlabel(self, im):
+        output = self.pointer.predict(im, self.model)[0]
+        return output
+
+    def get_hardlabel(self, im):
+        conf = self.get_softlabel(im)
+        label = np.argmax(conf)
+        return label
+
+    def run(self, im):
         cropped_face = self.crop_face(im)
         preproced_face = self.preproc(cropped_face)
         conf = self.get_softlabel(preproced_face)
         return conf
 
 
-class EVA(DeepForCls):
-    def __init__(self, mode='face2face_logreg'):
-        super(EVA, self).__init__()
+class SelimSeferbekov(DeepForCls):
+    def __init__(self):
         # Set up env
         pwd = os.path.dirname(__file__)
         root_dir = pwd + '/../'
-        sys.path.append(root_dir + '/externals/EVA')
-        import EVA_util
-        self.pointer = EVA_util
-        if mode == 'gan':
-            model_path = root_dir + '/externals/EVA/models/gan/bagging_knn.pkl'
-        elif mode == 'deepfake_mlp':
-            model_path = root_dir + '/externals/EVA/models/deepfake/mlp_df.pkl'
-        elif mode == 'deepfake_logreg':
-            model_path = root_dir + '/externals/EVA/models/deepfake/logreg_df.pkl'
-        elif mode == 'face2face_mlp':
-            model_path = root_dir + '/externals/EVA/models/face2face/mlp_f2f.pkl'
-        elif mode == 'face2face_logreg':
-            model_path = root_dir + '/externals/EVA/models/face2face/logreg_f2f.pkl'
-        else:
-            raise ValueError('name should be in [gan, deepfake_mlp, deepfake_logreg, face2face_mlp, face2face_logreg]')
-
-        self.model = self.pointer.init_model(model_path)
-        self.mode = mode
-        self.facelib = Flib()
-        self.facelib.set_face_detector()
-        self.facelib.set_landmarks_predictor(68)
-
-    def crop_face(self, im):
-        face_detector = self.facelib._face_detector
-        sp68 = self.facelib._lmark_predictor
-        from pipeline import face_utils
-        # Image size
-        if self.mode.split('_')[0] == 'gan':
-            face_crops, final_landmarks = face_utils.get_crops_landmarks(face_detector, sp68, im)
-        elif self.mode.split('_')[0] == 'deepfake' or self.mode.split('_')[0] == 'face2face':
-            if self.mode.split('_')[0] == 'face2face':
-                extend_roi = 0.1
-            else:
-                extend_roi = 0.0
-            face_crops, final_landmarks = face_utils.get_crops_landmarks(face_detector, sp68, im,
-                                                                         roi_delta=extend_roi)
-        return face_crops, final_landmarks
+        sys.path.append(root_dir + '/externals/')
+        from SelimSeferbekov import SelimSeferbekov_utils
+        self.pointer = SelimSeferbekov_utils
+        self.net = self.pointer.init_model()
 
     def preproc(self, im):
-        im = self.pointer.preprocess_image(im)
         return im
 
-    def get_softlabel(self, face_crops, final_landmarks):
-        conf = self.pointer.predict(face_crops, final_landmarks, self.model, self.mode)
+    def crop_face(self, im):
+        frames_per_video = 32
+        video_reader = self.pointer.VideoReader()
+        video_read_fn = lambda x: video_reader.read_frames(im, num_frames=frames_per_video)
+        face_extractor = self.pointer.FaceExtractor(video_read_fn)
+        faces, loc = face_extractor.process_image(im)
+        return faces, loc[0]
+
+    def get_softlabel(self, im):
+        conf = self.pointer.predict(self.net, im) # fake conf
         return conf
 
     def get_hardlabel(self, im):
@@ -428,7 +453,42 @@ class EVA(DeepForCls):
         return label
 
     def run(self, im):
-        im = self.preproc(im)
-        face_crops, final_landmarks = self.crop_face(im)
-        conf = self.get_softlabel(face_crops, final_landmarks)
+        cropped_face, _ = self.crop_face(im)
+        preproced_face = self.preproc(cropped_face)
+        conf = self.get_softlabel(preproced_face)
+        return conf
+
+
+class CNNDetection(DeepForCls):
+    def __init__(self):
+        super(CNNDetection, self).__init__()
+        # Set up env
+        pwd = os.path.dirname(__file__)
+        root_dir = pwd + '/../'
+        sys.path.append(root_dir + '/externals')
+        from CNNDetection import utils
+        self.pointer = utils
+        self.model = self.pointer.init_model()
+
+
+    def preproc(self, im):
+        im = self.pointer.preprocess_image(im)
+        return im
+
+    def crop_face(self, im):
+        return self.pointer.crop_face(im)
+
+    def get_softlabel(self, im):
+        output = self.pointer.predict(im, self.model)
+        return output
+
+    def get_hardlabel(self, im):
+        conf = self.get_softlabel(im)
+        label = np.argmax(conf)
+        return label
+
+    def run(self, im):
+        # cropped_face = self.crop_face(im)
+        preproced_face = self.preproc(im)
+        conf = self.get_softlabel(preproced_face)
         return conf

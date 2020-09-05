@@ -73,35 +73,43 @@ class VidForGui(VideoSandboxWnd):
         self.max_height = 400
         self.max_width = 800
 
+
+
     def init_model(self):
         # windows
-        self.urls  = {}
-        ip = socket.gethostbyname(socket.gethostname())
-        # os.system('start docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
-        #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA')
-        # time.sleep(10)  192.168.1.105
-        self.urls['Upconv'] = 'http://'+'124.16.70.204'+':2500/deepforensics'
+        self.urls = {}
+        self.urls['Upconv'] = 'http://' + '124.16.70.204' + ':5001/deepforensics'
         print('Load the Upconv Model')
 
-        # os.system('start docker run -p 2505:5000 -v '+ os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
-        #           '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py')
-        # time.sleep(10)
-        self.urls['DSP-FWA'] = 'http://'+'124.16.70.204'+':2505/deepforensics'
+        self.urls['DSP-FWA'] = 'http://' + '124.16.70.204' + ':5002/deepforensics'
         print('Load the DSP-FWA Model')
 
-        # linux
-        # self.urls = {}
-        # ip = socket.gethostbyname(socket.gethostname())
-        # os.system('docker run -p 2500:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
-        #           '/deepforensics/:/deepforensics/ zhangconghh/upconv:env python deepforensics/server/server_upconv.py -m SVM_CelebA &')
-        # time.sleep(10)
-        # print('Load the Upconv Model')
-        # self.urls['upconv'] = 'http://0.0.0.0:2500/deepforensics'
-        # os.system('docker run -p 2505:5000 -v ' + os.path.abspath(os.path.join(os.getcwd(), "../..")) + \
-        #           '/deepforensics/:/deepforensics/ zhangconghh/dspfwa:env-cpu python3 deepforensics/server/server_dspfwa.py &')
-        # time.sleep(10)
-        # self.urls['dspfwa'] = 'http://' + ip + ':2505/deepforensics'
-        # print('Load the DSP-FWA Model')
+        self.urls['WM'] = 'http://' + '124.16.70.204' + ':5003/deepforensics'
+        print('Load the WM Model')
+
+        self.urls['Selim'] = 'http://' + '124.16.70.204' + ':5004/deepforensics'
+        print('Load the Selim Model')
+
+        self.urls['VA'] = 'http://' + '124.16.70.204' + ':5005/deepforensics'
+        print('Load the VA Model')
+
+        self.urls['Capsule'] = 'http://' + '124.16.70.204' + ':5006/deepforensics'
+        print('Load the Capsule Model')
+
+        self.urls['ClassNSeg'] = 'http://' + '124.16.70.204' + ':5007/deepforensics'
+        print('Load the ClassNSeg Model')
+
+        self.urls['XceptionNet'] = 'http://' + '124.16.70.204' + ':5008/deepforensics'
+        print('Load the XceptionNet Model')
+
+        self.urls['FWA'] = 'http://' + '124.16.70.148' + ':5009/deepforensics'
+        print('Load the FWA Model')
+
+        self.urls['MesoNet'] = 'http://' + '124.16.70.204' + ':5010/deepforensics'
+        print('Load the MesoNet Model')
+
+
+
 
     def open_video_dialog(self):
         dialog_title = self.tr('Load Video')
@@ -114,8 +122,8 @@ class VidForGui(VideoSandboxWnd):
         #                                                self.tr(
         #                                                    'Videos (*.avi *.mp4 *.mpg *.wmv *.asf *.mov *.qt *.flv *.asf);;AVI (*.avi);;MPEG4 (*.mp4);;MPEG or MPEG2 (*.mpg);;Microsoft WMV or ASF (*.wmv *.asf);;QuickTime MOV (*.mov *.qt);;Flash Video (*.flv *.swf);;All Files (*.*)'),
         #                                                selfilter)
-        print ('on_file_open_video() %s' % (fileName))
-        return fileName
+        print ('on_file_open_video() %s' % (fileName[0]))
+        return fileName[0]
 
     def createMainFrame(self):
         # Image display using VizWidget defined in viz_widget.py
@@ -160,7 +168,9 @@ class VidForGui(VideoSandboxWnd):
         # self.playSpeedComboBox.currentIndexChanged.connect (self.on_select_method)
         # proc_ctrl_hbox.addWidget(self.playSpeedComboBox)
 
-        self.playSpeedComboBox = ComboCheckBox(['Upconv', 'DSP-FWA'])
+        self.playSpeedComboBox = ComboCheckBox(
+            ['Upconv', 'DSP-FWA', 'WM', 'Selim', 'VA', 'Capsule', 'ClassNSeg', 'XceptionNet', 'FWA', 'MesoNet'])
+        # self.playSpeedComboBox = ComboCheckBox(['Upconv', 'DSP-FWA'])
         self.methods = self.playSpeedComboBox.Selectlist()
         self.playSpeedComboBox.resize(640, 480)
         self.playSpeedComboBox.setGeometry(QRect(0, 0, 640, 480))
@@ -169,7 +179,8 @@ class VidForGui(VideoSandboxWnd):
 
         self.analyze_btn = QPushButton('Analyze')
         self.analyze_btn.setEnabled(False)
-        self.connect(self.analyze_btn, SIGNAL('clicked()'), self.on_analyze)
+        # self.connect(self.analyze_btn, SIGNAL('clicked()'), self.on_analyze)
+        self.analyze_btn.clicked.connect(self.on_analyze)
         proc_ctrl_hbox.addWidget(self.analyze_btn)
 
         self.progress_bar = QProgressBar(self)
@@ -185,7 +196,8 @@ class VidForGui(VideoSandboxWnd):
 
         self.smooth_btn = QPushButton('TempSmooth')
         self.smooth_btn.setEnabled(False)
-        self.connect(self.smooth_btn, SIGNAL('clicked()'), self.on_smooth)
+        # self.connect(self.smooth_btn, SIGNAL('clicked()'), self.on_smooth)
+        self.smooth_btn.clicked.connect(self.on_smooth)
         proc_ctrl_hbox.addWidget(self.smooth_btn)
 
         self.smooth_progress_bar = QProgressBar(self)
@@ -194,7 +206,8 @@ class VidForGui(VideoSandboxWnd):
 
         self.save_btn = QPushButton('Save')
         self.save_btn.setEnabled(False)
-        self.connect(self.save_btn, SIGNAL('clicked()'), self.on_save)
+        # self.connect(self.save_btn, SIGNAL('clicked()'), self.on_save)
+        self.save_btn.clicked.connect(self.on_save)
         self.save_btn.setEnabled(False)
         proc_ctrl_hbox.addWidget(self.save_btn)
         return proc_ctrl_hbox
