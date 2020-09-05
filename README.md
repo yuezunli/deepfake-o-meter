@@ -7,26 +7,25 @@ This repository is a python library, which incorperates existing deepfake detect
 ## Introduction
 To date, this toolbox supports following methods:
 
-| Methods     | Platform            | Required Packages | Models  | Download |
-|----------   |:-------------:      |:------:            |:------: | :------:  |
-| XceptionNet |  py3, pytorch-1.0.1 | pretrainmodels | c23, c40, raw | [Link](https://drive.google.com/open?id=1FjbSxvLR0YVao5ykLGIFj47FVe6eDTNh) |
-| MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 | [Link](https://drive.google.com/file/d/1QkwJSz7dH-3gCisqQpu-9fz3K7Ozl2ZM/view?usp=sharing) |  
-| VA          |  py3                | - | svm | [Link](https://drive.google.com/file/d/1NZEa9YzsFVzhskRGoIl0e1XWVvpTYhOC/view?usp=sharing) |
-| ClassNSeg   |  py3, pytorch-1.0.1 | - | decoder-encoder | [Link](https://drive.google.com/file/d/128RkifOvKjUIPX7khU0FdeiQBQoKk4Tt/view?usp=sharing) |
-| CapsuleNet  |  py3, pytorch-1.0.1 | - | capsuleNet | [Link](https://drive.google.com/file/d/1jwi2L7CI0K9vOlTNsQfmWGjFNQAiPUte/view?usp=sharing) |
-| FWA         |  py2, tf-1.5        | - | resnet | [Link](https://drive.google.com/open?id=1mMeVpNub67dNvSvjvwYbx047g1snGo1m) |
-| DSPFWA      |  py3, pytorch-1.0.1 | - | resnet50 | [Link](https://drive.google.com/open?id=1IN7lkav8UbDacCWpO8Cio2ogAas7auvG) |
-| Upconv      |  py3                | - | SVM | [Link](https://drive.google.com/file/d/10fR-tQbgy4byLj8GMQ9MJc6gaeZjCgSA/view?usp=sharing) |
-| WM          |  py3, pytorch-1.1.0 | - | efficientnet_b3, XceptionNet | [Link](https://drive.google.com/file/d/1y8J2wq6V_37wiWvf1zyDmc5HEgMMthsn/view?usp=sharing) |
-| SelimSefer  |  py3, pytorch-1.1.0 | - | efficientnet_b7 | [Link](https://drive.google.com/file/d/1o5zgH5rEoRr1_UAMf2XMj9WBV2o7c1F0/view?usp=sharing) |
-| CNNDetection|  py3, pytorch-1.1.0 | - | resnet50 | [Link](https://drive.google.com/file/d/1OP6tzmzA8RdD9JZUER4FeOLslzUy3Kxc/view?usp=sharing) |
-
+| Methods     | Platform            | Required Packages | Models  | 
+|----------   |:-------------:      |:------:            |:------: | 
+| XceptionNet |  py3, pytorch-1.0.1 | pretrainmodels | c23, c40, raw | 
+| MesoNet     |  py3, keras-2.1.5, tf-1.5 |   -   | meso4,mesoinception4 |
+| VA          |  py3                | - | svm | 
+| ClassNSeg   |  py3, pytorch-1.0.1 | - | decoder-encoder | 
+| CapsuleNet  |  py3, pytorch-1.0.1 | - | capsuleNet | 
+| FWA         |  py2, tf-1.5        | - | resnet | 
+| DSPFWA      |  py3, pytorch-1.0.1 | - | resnet50 | 
+| Upconv      |  py3                | - | SVM | 
+| WM          |  py3, pytorch-1.1.0 | - | efficientnet_b3, XceptionNet | 
+| SelimSefer  |  py3, pytorch-1.1.0 | - | efficientnet_b7 |
+| CNNDetection|  py3, pytorch-1.1.0 | - | resnet50 | 
 
 
 
 ## Quick Start
 
-1. The original method (with slight modification for intergration) can be downloaded from the link shown in above table. Unzip the method to folder `externals`. You may need to make a new folder following below structure.
+1. The original method (with slight modification for intergration) can be downloaded from [here]() shown in above table. Unzip the method to folder `externals`. You may need to make a new folder following below structure.
 
    ```
    Root --- deepfor ----- externals
@@ -49,7 +48,7 @@ To date, this toolbox supports following methods:
 
 3. Since different methods usually need different environment, we provides docker images for each method to save time. Following is an example of setting up environment.
 
-   ```
+   ```bash
    # Build docker enironment from docker image, eg,
    docker build -t classnseg ./dockerfile/ClassNSeg/
    ```
@@ -57,8 +56,10 @@ To date, this toolbox supports following methods:
 
    Then run the demo code:
 
-   ```
-   docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepforensics/:/deepforensics/ classnseg python deepforensics/demo.py --method ClassNSeg
+   ```bash
+   docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepfake-o-meter:/deepfake-o-meter/ classnseg python deepfake-o-meter/demo.py --img=/deepfake-o-meter/test_img.png  --name=ClassNSeg
+
+   docker run --gpus all -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepfake-o-meter:/deepfake-o-meter/ classnseg python deepfake-o-meter/demo.py --img=/deepfake-o-meter/test_img.png  --name=ClassNSeg
    ```
 
 ## Logs

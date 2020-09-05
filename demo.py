@@ -4,6 +4,7 @@ import warnings
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--img', type=str, help='image path')
 parser.add_argument(
     '--name',
     type=str,
@@ -12,11 +13,9 @@ parser.add_argument(
     default='XceptionNet')
 args = parser.parse_args()
 
-name = args.name
-
 warnings.filterwarnings('ignore')
 # Read image
-img = cv2.imread('test_img.png')
-exec('detector = deepfor.{}()'.format(name))
+img = cv2.imread(args.img)
+exec('detector = deepfor.{}()'.format(args.name))
 conf = detector.run(img)  # conf of fake
 print('Fake confidence score is: {}'.format(conf))
