@@ -441,7 +441,7 @@ class SelimSeferbekov(DeepForCls):
         video_read_fn = lambda x: video_reader.read_frames(im, num_frames=frames_per_video)
         face_extractor = self.pointer.FaceExtractor(video_read_fn)
         faces, loc = face_extractor.process_image(im)
-        return faces, loc[0]
+        return faces, loc
 
     def get_softlabel(self, im):
         conf = self.pointer.predict(self.net, im) # fake conf
