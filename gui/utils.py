@@ -1,12 +1,12 @@
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '..')
 from py_utils.vid_utils import proc_vid as pv
 from py_utils.vid_utils import proc_aud as pa
 from py_utils.face_utils import lib
 import cv2, os
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 # import torch
 # import torch.nn.functional as F

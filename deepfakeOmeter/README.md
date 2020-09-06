@@ -43,7 +43,15 @@ python scanPort.py
 
 This website including four components.
 
-+ Monitor the submission from the website. The demo_video.py will save the submitted video and detection methods under the tmp folder named by its submission email and submission time. You can directly upload the video or upload an url.
-+ Monitor the submission video. Once the video has been completely saved, the  scanVideo.py will detect the signal and analysis the submission video with its selected methods.
-+ Send the E-mail. When finish analysising the video, we will send an e-mail to te user to inform him to download the result in 5 days.
-+ Clean ports. Since we will open a port for each submission, we will automatically close the ports opened 5 days ago.
++ Monitor the submission from the website.
+
+The demo_video.py will save the submitted video and detection methods under the tmp folder named by its submission email and submission time. You can directly upload the video or upload an url.
++ Monitor the submission video.
+
+Once the video has been completely saved, the  scanVideo.py will detect the signal and analysis the submission video with its selected methods.
++ Send the E-mail.
+
+When finish analysising the video, we will send an e-mail to te user to inform him to download the result in 5 days.
++ Clean ports.
+
+Since we will open a port for each submission, we will automatically close the ports opened 5 days ago.

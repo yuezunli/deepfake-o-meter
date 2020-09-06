@@ -27,7 +27,7 @@ def AnalysisVideo(method, video, pathToSave):
     }
 
     videoPath = 'deepforensics/deepfakeOmeter' + video[1:]
-    commenLine = "docker run -p 2500:5000 --runtime=nvidia -e NVIDIA_VISIBLE_DEVICE=3 -v /media/disk/Backup/02congzhang/deepfake/deepforensics/0905/deepforensics/:/deepforensics/ "+modelToEnv[method]+" python deepforensics/deepfakeOmeter/videoProcess.py -v "+videoPath+"  -m "+method
+    commenLine = "docker run -p 2500:5000 --runtime=nvidia -e NVIDIA_VISIBLE_DEVICEs=3 -v /media/disk/Backup/02congzhang/deepfake/deepforensics/0905/deepforensics/:/deepforensics/ "+modelToEnv[method]+" python deepforensics/deepfakeOmeter/videoProcess.py -v "+videoPath+"  -m "+method
     os.system(commenLine)
 
 

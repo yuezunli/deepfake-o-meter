@@ -28,8 +28,11 @@ def SendEmail(receiver, pin):
     message['Subject'] = Header(mail_title, 'utf-8')
 
     # Content of the Email
-    message.attach(MIMEText('We have received your submission. The result will be send to this email later.\
-    Please remeber your pin code:' + pin, 'plain', 'utf-8'))
+    message.attach(MIMEText('We have received your submission. The result will be send to this email later.' + '\n' +
+    'Please check your result and download them in 5 days.' + '\n' +
+    'Please remeber your pin code:' + pin + '\n' +
+    'If you don not  get the results in 5 days, Pleasse contact us.'
+    , 'plain', 'utf-8'))
 
     smtpObj = smtplib.SMTP_SSL(smtpserver)
     smtpObj.connect(smtpserver)
