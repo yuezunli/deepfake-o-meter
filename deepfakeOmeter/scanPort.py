@@ -6,7 +6,7 @@ import datetime, pdb
 
 def job4():
      the_date = datetime.datetime.now()
-     result_date = the_date + datetime.timedelta(days=-3)
+     result_date = the_date + datetime.timedelta(days=-5)
      result_date = result_date.strftime('%Y%m%d')
      txtFile =  os.path.join('log','Log'+result_date+'.txt')
      commenLine = ' sh killbytxt.sh ' + txtFile

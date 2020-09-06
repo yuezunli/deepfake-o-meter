@@ -457,7 +457,10 @@ class SelimSeferbekov(DeepForCls):
         if cropped_face is not None:
             preproced_face = self.preproc(cropped_face)
             conf = self.get_softlabel(preproced_face)
-            return conf
+            if conf:
+                return conf
+            else:
+                return 0.5
         else:
             return 0.5
 
