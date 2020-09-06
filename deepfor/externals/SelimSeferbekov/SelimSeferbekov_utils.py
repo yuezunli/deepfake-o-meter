@@ -196,8 +196,8 @@ class FaceExtractor:
         faces = []
         scores = []
 
-        for bbox, score in zip(batch_boxes, probs):
-            if bbox is not None:
+        if batch_boxes is not None:
+            for bbox, score in zip(batch_boxes, probs):
                 xmin, ymin, xmax, ymax = [int(b * 2) for b in bbox]
                 w = xmax - xmin
                 h = ymax - ymin
@@ -205,8 +205,10 @@ class FaceExtractor:
                 p_w = w // 3
                 crop = frame[max(ymin - p_h, 0):ymax + p_h, max(xmin - p_w, 0):xmax + p_w]
                 faces.append(crop)
-                scores.append([max(ymin - p_h, 0), ymax + p_h, max(xmin - p_w, 0), xmax + p_w])
-            return faces, scores
+                scores.append(score)
+        return faces, scores
+
+        
 
     def process_videos(self, input_dir, filenames, video_idxs):
         videos_read = []

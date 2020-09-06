@@ -454,9 +454,12 @@ class SelimSeferbekov(DeepForCls):
 
     def run(self, im):
         cropped_face, _ = self.crop_face(im)
-        preproced_face = self.preproc(cropped_face)
-        conf = self.get_softlabel(preproced_face)
-        return conf
+        if cropped_face is not None:
+            preproced_face = self.preproc(cropped_face)
+            conf = self.get_softlabel(preproced_face)
+            return conf
+        else:
+            return 0.5
 
 
 class CNNDetection(DeepForCls):

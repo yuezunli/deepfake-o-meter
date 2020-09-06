@@ -75,7 +75,7 @@ def AnalysisVideo(method, input_vid_path):
         model = deepfor.VA()
     elif method =='CNNDetection':
         model = deepfor.CNNDetection()
-    elif method =='SelimSeferbekov':
+    elif method =='Selim':
         model = deepfor.SelimSeferbekov()
     elif method =='MesoNet':
         model = deepfor.MesoNet()

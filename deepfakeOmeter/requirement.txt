@@ -1,0 +1,6 @@
+you-get==0.4.1456
+watchdog==0.10.3
+schedule==0.6.0
+opencv-python==3.4.0.14
+moviepy==1.0.3
+flask==1.1.2

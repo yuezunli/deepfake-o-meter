@@ -94,7 +94,7 @@ def hello_world():
                 sys.argv = ['you-get', '-o', upload_path, '-O', 'tmp', fileurl]
                 you_get.main()
 
-            with open(os.path.join(upload_path, (f.filename).split('.')[0]+'.txt'), 'w') as f:
+            with open(os.path.join(upload_path, (f.filename).split('.')[0]+'.csv'), 'w') as f:
                 f.writelines('Finish Save!')
 
 

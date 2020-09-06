@@ -42,7 +42,7 @@ class MyDirEventHandler(FileSystemEventHandler):
         filePath = event.src_path
         if os.path.isfile(filePath):
             # if the video has finished save, the detection will be started
-            if filePath.split('.')[-1] == 'txt':
+            if filePath.split('.')[-1] == 'csv':
                 npzDir = filePath[:-len(filePath.split('/')[-1])]
                 methods = np.load(os.path.join(npzDir, 'methods.npy'))
                 videoPath =filePath.rsplit('.', 1)[0] +'.mp4'
