@@ -5,5 +5,5 @@ import warnings
 warnings.filterwarnings('ignore')
 # Read image
 img = cv2.imread('deepforensics/test_img.png')
-conf = deepfor.ClassNSeg().run(img) # conf of fake
+conf = deepfor.CNNDetection().run(img) # conf of fake
 print('Fake confidence score is: {}'.format(conf))
