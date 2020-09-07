@@ -25,7 +25,7 @@ To date, this toolbox supports following methods:
 
 ## Quick Start
 
-1. The original method (with slight modification for intergration) can be downloaded from [here]() shown in above table. Unzip the method to folder `externals`. You may need to make a new folder following below structure.
+1. The original method (with slight modification for intergration) can be downloaded from [here](https://drive.google.com/drive/folders/1gn43ZKYiY5IwklpJS5IysjxjlGZqvKom?usp=sharing). Unzip the method to folder `externals`. You may need to make a new folder following below structure.
 
    ```
    Root --- deepfor ----- externals
@@ -58,7 +58,9 @@ To date, this toolbox supports following methods:
 
    ```bash
    docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepfake-o-meter:/deepfake-o-meter/ classnseg python deepfake-o-meter/demo.py --img=/deepfake-o-meter/test_img.png  --name=ClassNSeg
-
+   ```
+   or
+   ```bash
    docker run --gpus all -e NVIDIA_VISIBLE_DEVICES=0 -v /home/.../deepfake-o-meter:/deepfake-o-meter/ classnseg python deepfake-o-meter/demo.py --img=/deepfake-o-meter/test_img.png  --name=ClassNSeg
    ```
 

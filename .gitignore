@@ -1,4 +1,4 @@
-externals
+deepfor/externals
 .vscode
 **/*.pyc
 __pycache__/
