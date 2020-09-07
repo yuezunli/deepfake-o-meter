@@ -17,10 +17,15 @@ Structure of the folder:
 
  ```
 log: the txt file records the used ports
+
 py_utils: the vidoe pre-processing files
+
 result: the detection result
+
 static: the css files and the images
+
 templates: the html files
+
 tmp: the folder where the submitted video is saved
 
 ## Instruction
@@ -78,6 +83,7 @@ https://github.com/yuezunli/deepfake-o-meter/blob/zc/deepfakeOmeter/scanVideo.py
 https://github.com/yuezunli/deepfake-o-meter/blob/zc/deepfakeOmeter/scanVideo.py#L15-L27
 
 3. Run the four python files
+
 First, you should set the port of the website in demo_video.py.
 
 https://github.com/yuezunli/deepfake-o-meter/blob/zc/deepfakeOmeter/demo_video.py#L116
