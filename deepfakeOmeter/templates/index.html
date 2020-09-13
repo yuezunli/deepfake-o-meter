@@ -1,16 +1,15 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" class="gr_web_albany_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<meta name="keywords" content="CVML Celeb-DF dataset, University at Albany, State University of New York">
-<meta name="description" content="CVML Celeb-DF dataset">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="UBDFML DeepFakeOmeter, State University of New York at Buffalo">
+<meta name="description" content="UBDFML DeepFakeOmeter">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jemdoc.css') }}" type="text/css" />
+<link rel="stylesheet" href="{{url_for('static', filename='css/mycss.css')}}" type="text/css" />
+
 <title>DeepFakeOmetert</title>
 
 <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 
+</head>
 <style>
 .dropdown {
  position: relative;
@@ -79,25 +78,7 @@
  background-color: #36bf36;
 }
 
-.wrap {
-    /* border: 1px solid; */
-    /* width: 600px; */
-    text-align: center;
-}
-.wrap span{
-    display: inline-block;
-    vertical-align: middle;
-    /* padding: 20px 0; */
-}
-.wrap img{
-    width: 150px;
-    height: auto;
-    /* right: 30%; */
-    vertical-align: middle;
-}
 </style>
-
-</head>
 <body data-gr-c-s-loaded="true">
 
 
@@ -110,7 +91,7 @@
  </div>
 
 <br>
-<form action="/" method="post" enctype='multipart/form-data' >
+<form action="/submit" method="post" enctype='multipart/form-data' >
 
 
 

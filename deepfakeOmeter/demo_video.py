@@ -58,8 +58,14 @@ def validateEmail(email):
 app = Flask(__name__)
 
 
-@app.route("/", methods=['POST', 'GET'])
+@app.route("/")
 def hello_world():
+    return render_template('index.html')
+
+
+#the submit website
+@app.route('/submit', methods=['POST', 'GET'])
+def submitpadge():
     if request.method == 'POST':
         # Get the submision information
         f = request.files['file']
@@ -68,16 +74,16 @@ def hello_world():
         fileurl = request.values.getlist("input_file")[0]
         pin = request.values.getlist("input_pin")[0]
         timerecord = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-        print(methods, email)
+        print('submit', methods, email)
 
         # check if the submission information is right
         isEmail = validateEmail(email)
         if isEmail == 0:
-            return render_template('DFvideo_Email_Error.html')
-        elif len(methods) == 0:
-            return render_template('DFvideo_Method_Error.html')
+            return redirect(url_for('error',type='Email'))
         elif not f.filename and len(fileurl)==0:
-            return render_template('DFvideo_Input_Error.html')
+            return redirect(url_for('error',type='Input'))
+        elif len(methods) == 0:
+            return redirect(url_for('error',type='Method'))
         else:
             basepath = os.path.dirname(__file__)
             emailDir = os.path.join(basepath, 'tmp', email)
@@ -99,13 +105,20 @@ def hello_world():
 
             with open(os.path.join(upload_path, (f.filename).split('.')[0]+'.csv'), 'w') as f:
                 f.writelines('Finish Save!')
-
-
             # send the email
             SendEmail(email, pin)
-        return render_template('DFvideo_Waite_Page.html')
+        return render_template('succeed.html')
 
-    return render_template('deepfakeOmeter_video_index.html')
+
+@app.route('/error/<string:type>')
+def error(type):
+    if type=='Email':
+        error = 'email address'
+    elif type=='Input':
+        error = 'input video'
+    elif type=='Method':
+        error = 'selected methods'
+    return render_template('error.html', error=error, type=type)
 
 
 #the reference website

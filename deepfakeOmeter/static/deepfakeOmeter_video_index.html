@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" class="gr_web_albany_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="keywords" content="CVML Celeb-DF dataset, University at Albany, State University of New York">
+<meta name="description" content="CVML Celeb-DF dataset">
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/jemdoc.css') }}" type="text/css" /> -->
+<link rel="stylesheet" href="css/jemdoc.css" type="text/css" />
+<title>DeepFakeOmetert</title>
+
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+
+<style>
+.dropdown {
+ position: relative;
+ /* right:60%; */
+
+}
+
+.dropdown dd,
+.dropdown dt {
+ margin: 0px;
+ padding: 0px;
+}
+.dropdown ul {
+ margin: -1px 0 0 0;
+}
+.dropdown dd {
+ position: relative;
+}
+.dropdown a,
+.dropdown a:visited {
+ color: #36bf36;
+ text-decoration: none;
+ outline: none;
+ font-size: 12px;
+}
+.dropdown dt a {
+ background-color: #36bf36;
+ display: block;
+ padding: 8px 20px 5px 10px;
+ min-height: 25px;
+ line-height: 24px;
+ overflow: hidden;
+ border: 0;
+ width: 272px;
+}
+.dropdown dt a span,
+.multiSel span {
+ cursor: pointer;
+ display: inline-block;
+ padding: 0 5px 2px 0;
+}
+.dropdown dd ul {
+ background-color: #f8f8ff;
+ border: 0;
+ /* color: #36bf36; */
+ display: none;
+ /* right: 0px; */
+ padding: 2px 15px 2px 5px;
+ position: absolute;
+ top: 2px;
+ width: 240px;
+ list-style: none;
+ height: auto;
+ overflow: auto;
+ margin-top:30px;
+}
+
+.dropdown span.value {
+ display: none;
+}
+.dropdown dd ul li a {
+ padding: 5px;
+ display: block;
+}
+.dropdown dd ul li a:hover {
+ background-color: #36bf36;
+}
+
+.wrap {
+    /* border: 1px solid; */
+    /* width: 600px; */
+    text-align: center;
+}
+.wrap span{
+    display: inline-block;
+    vertical-align: middle;
+    /* padding: 20px 0; */
+}
+.wrap img{
+    width: 150px;
+    height: auto;
+    /* right: 30%; */
+    vertical-align: middle;
+}
+</style>
+
+</head>
+<body data-gr-c-s-loaded="true">
+
+
+
+<div class="wrap">
+     <img src='images/deepfakeometer2.png' alt="">
+     <span><h1 align="center"><b><big>DeepFake-o-meter</b> </big></h1>
+     <br><big>An open platform for DeepFake video detection</big></span>
+        <img src={'images/deepfakeometer3.png' alt="">
+ </div>
+
+<br>
+<form action="/" method="post" enctype='multipart/form-data' >
+
+
+/user/<name>
+
+<div id="layout-content" style="margin-top:25px">
+<h2>Step1: Upload the Video</h2>
+<p style="text-align:justify"> you can paste or enter the video URL, upload from your computer.</p>
+<p style="text-align:justify"> <b>Attention:</b> Upload 1 video at a time.</p>
+
+<p style="text-align:justify">
+ &bull;Upload an url.<br>
+ &nbsp;  Video Url: <textarea type="text" class="query" name="input_file" id="input_file" value="" style="width:500px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }"></textarea></p>
+
+
+ <p style="text-align:justify"> &bull; Or upload the video.<br></p>
+ <dl class="upfile" style="text-align:justify">
+  <input  type="file" name="file">
+ <dl class="upfile"></p>
+</div>
+<br>/user/<name>
+
+
+
+
+
+<div id="layout-content" style="margin-top:25px">
+<h2>Step2: Select the DeepFake Detection Methods</h2>
+<p style="text-align:justify"> Select the deepfake Methods.Instruction <a href="./reference" >Reference</a></p>
+<p style="text-align:justify"> <nobr><dl class="dropdown">
+<dt>
+<div style="">
+
+  <div class="mydropdown" style="width:90px;background:#cccccc;padding: 8px 20px 5px 10px;height:20px;float:left;font-size: 14px">Select Methods</div>
+
+<div class="multiSel" style="width:110px;background:#f8f8ff;padding: 8px 20px 5px 10px;height:20px;float:left;"></div>
+
+</div>
+</dt>
+
+<dd>
+<div class="mutliSelect">/user/<name>
+<ul>
+<li>
+  <input type="checkbox"  name="method" value="Capsule">Capsule</li>
+ <li>
+  <input type="checkbox"  name="method" value="ClassNSeg" />ClassNSeg</li>
+ <li>
+  <input type="checkbox"  name="method" value="DSP-FWA" />DSP-FWA</li>
+ <li>
+  <input type="checkbox" name="method" value="FWA" />FWA</li>
+ <li>
+  <input type="checkbox" name="method" value="MesoNet" />MesoNet</li>
+ <li>
+  <input type="checkbox" name="method" value="Upconv" />Upconv</li>
+ <li>
+  <input type="checkbox" name="method" value="VA" />VA</li>
+ <li>
+  <input type="checkbox" name="method" value="XceptionNet" />XceptionNet</li>
+ <li>
+  <input type="checkbox" name="method" value="Selim" />Selim</li>
+ <li>/user/<name>
+  <input type="checkbox" name="method" value="WM" />WM</li>
+ <li>
+  <input type="checkbox" name="method" value="CNNDetection" />CNNDetection</li>
+</ul>
+</div>
+</dd>
+</dl></nobr></p>
+<br>
+<br>
+<br>
+</div>
+</div>
+
+
+/user/<name>
+
+
+
+
+
+
+
+<div id="layout-content" style="margin-top:25px">
+<h2>Step3: Submit your e-mail</h2>
+<p style="text-align:justify"> Please submit your emial. Only one email is required.</p>
+<p style="text-align:justify"><nobr> &bull;  E-mail address: <textarea type="text" class="query" name="input_email" id="input_email" value="" style="width:100px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }"></textarea></nobr></p>
+<br>
+
+</div>
+
+
+
+
+<div id="layout-content" style="margin-top:25px">
+
+<h2>Step4: Submit PIN code</h2>
+<p style="text-align:justify">Please submit a PIN code for download verification.</p>
+<p style="text-align:justify"><nobr> &bull;  A 4~6 digits PIN code: <textarea type="text" class="query" name="input_pin" id="input_pin" value="" style="width:100px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }"></textarea></nobr></p>
+<br>
+<p align="center"><input type="submit" style="width:100px;background:#fff;padding: 8px 20px 5px 10px;height:35px;color:#000;margin-top:0px;margin-left:0px" value="Submit"/></p>
+</div>
+</form>
+<footer style="margin-top: 40px">
+<hr>
+&copy; UB Media Forensic Lab (<a href="http://www.cs.albany.edu/~lsw/">UB MDFL</a>) 2020
+</footer>
+</div>
+
+</div>
+
+<script>
+ $(".dropdown dt .mydropdown").on('click', function() {
+  $(".dropdown dd ul").slideToggle('fast');
+ });
+$(".dropdown dd ul li a").on('click', function() {
+ $(".dropdown dd ul").hide();
+});
+function getSelectedValue(id) {
+ return $("#" + id).find("dt a span.value").html();
+}
+$(document).bind('click', funct/user/<name>ion(e) {
+ var $clicked = $(e.target);
+ if (!$clicked.parents().hasClass("dropdown")) $(".dropdown dd ul").hide();
+});
+$('.mutliSelect input[type="checkbox"]').on('click', function() {
+ var title = $(this).closest('.mutliSelect').find('input[type="checkbox"]').val(),
+ title = $(this).val() + ",";
+ if ($(this).is(':checked')) {
+ var html = '<span title="' + title + '">' + title + '</span>';
+ $('.multiSel').append(html);
+ } else {
+ $('span[title="' + title + '"]').remove();
+ }
+});
+ </script>
+
+
+</body></html>

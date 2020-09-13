@@ -6,6 +6,8 @@ table#tlayout {
     border-collapse: separate;
     background: white;
 }
+
+
 /*
 body {
 	background: white;
@@ -195,6 +197,7 @@ div#footer-text {
 	float: left;
 	padding-bottom: 8px;
 }
+
 
 ul, ol, dl {
 	margin-top: 0.2em;
