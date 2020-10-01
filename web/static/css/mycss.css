@@ -1,0 +1,19 @@
+<style>
+
+.wrap {
+    /* border: 1px solid; */
+    /* width: 600px; */
+    text-align: center;
+}
+.wrap span{
+    display: inline-block;
+    vertical-align: middle;
+    /* padding: 20px 0; */
+}
+.wrap img{
+    width: 150px;
+    height: auto;
+    /* right: 30%; */
+    vertical-align: middle;
+}
+</style>
