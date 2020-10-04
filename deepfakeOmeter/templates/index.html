@@ -192,7 +192,10 @@
 <p style="text-align:justify">Please submit a PIN code for download verification.</p>
 <p style="text-align:justify"><nobr> &bull;  A 4~6 digits PIN code: <textarea type="text" class="query" name="input_pin" id="input_pin" value="" style="width:100px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }">{{input_text}}</textarea></nobr></p>
 <br>
-<p align="center"><input type="submit" style="width:100px;background:#fff;padding: 8px 20px 5px 10px;height:35px;color:#000;margin-top:0px;margin-left:0px" value="Submit"/></p>
+
+ <p align="center"><input type="checkBox" onclick="if (this.checked) {enable()} else {disable()}">By clicking this box, I accept the terms of using DeepFake-o-meter.</p>
+
+<p align="center"><input type="submit" id="accept"  disabled="true" style="width:100px;background:#fff;padding: 8px 20px 5px 10px;height:35px;color:#000;margin-top:0px;margin-left:0px" value="Submit"/></p>
 </div>
 </form>
 <footer style="margin-top: 40px">
@@ -227,6 +230,16 @@ $('.mutliSelect input[type="checkbox"]').on('click', function() {
  $('span[title="' + title + '"]').remove();
  }
 });
+
+function disable()
+  {
+  document.getElementById("accept").disabled=true
+  }
+function enable()
+  {
+  document.getElementById("accept").disabled=false
+  }
+
  </script>
 
 
