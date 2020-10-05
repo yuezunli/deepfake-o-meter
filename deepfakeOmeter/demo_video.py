@@ -97,8 +97,7 @@ def submitpadge():
             np.save(upload_path+'/methods', methods)
             np.save(upload_path+'/pin', pin)
             if f.filename:
-                f.save("tmp.mp4")
-                shutil.move("tmp.mp4",os.path.join(upload_path, f.filename))
+                f.save(os.path.join(upload_path, f.filename))
             else:
                 sys.argv = ['you-get', '-o', upload_path, '-O', 'tmp', fileurl]
                 you_get.main()

@@ -6,10 +6,34 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from jinja2 import Environment, FileSystemLoader
 
 
 global portSum
 portSum = 10000
+
+
+def createHTML(path):
+    data = np.load(path+'info.npz')
+    env = Environment(loader=FileSystemLoader("templates"))
+    template = env.get_template("result.j2")
+    videoName = data['videoName']
+    frames = data['frame_num']
+    height = data['height']
+    weight = data['weight']
+    fps = data['fps']
+    images = []
+    videos = []
+    methods = data['methods']
+    for method in methods:
+        images.append(videoName + method + '.jpg')
+        videos.append(videoName + method + '.mp4')
+
+    content = template.render(videoName=videoName, frames=frames, height=height, weight=weight, images=images,
+                              videos=videos)
+
+    with open(path+'result.py', 'w') as fp:
+        fp.write(content)
 
 
 def get_host_ip():
@@ -72,7 +96,7 @@ def SendEmail(receiver, filedir, portSum):
     smtpObj.sendmail(sender, receiver, message.as_string())
     print("suceed")
     smtpObj.quit()
-
+    createHTML(filedir)
     # setup the url for detection result
     pin = np.load(os.path.join('tmp', filedir.split('/', 1)[1], 'pin.npy'))
     date = datetime.now().strftime('%Y%m%d')

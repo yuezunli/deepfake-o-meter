@@ -52,10 +52,7 @@ class MyDirEventHandler(FileSystemEventHandler):
                 if not os.path.isdir(pathToSave):
                     os.makedirs(pathToSave)
 
-                for method in methods:
-                    print(method, videoPath)
-                    AnalysisVideo(method, videoPath, pathToSave)
-
+                AnalysisVideo(methods, videoPath, pathToSave)
                 with open(os.path.join(pathToSave, 'finish.txt'), 'w') as f:
                     f.writelines('Finish Save!')
 

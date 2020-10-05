@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="UBDFML DeepFakeOmeter, State University of New York at Buffalo">
+<meta name="description" content="UBDFML DeepFakeOmeter">
+<link rel="stylesheet" href="static/css/jemdoc.css" type="text/css" />
+<link rel="stylesheet" href="static/css/mycss.css" type="text/css" />
+<title>DeepFakeOmetert</title>
+</head>
+
+
+<div class="wrap">
+     <img src=".static/images/deepfakeometer2.png"  alt="">
+     <span><h1 align="center"><b><big>DeepFake-o-meter</b> </big></h1>
+     <br><big>An open platform for DeepFake video detection</big></span>
+        <img src="static/images/deepfakeometer3.png" alt="">
+ </div>
+
+
+<div id="layout-content" style="margin-top:25px">
+<h2>The detection result of Deepfake-O-Meter</h2>
+<p style="text-align:justify"> <h3>Information of the uploaded video.</h3></p>
+<p>The video name is {{videoName}}, including {{frames}} frames, the height is {{height}}, the weight is {{weight}}</p>
+<p style="text-align:justify"> <h3>Score of the uploaded video.</h3></p>
+
+
+ <div style="text-align:center;padding-top:0px">
+{% for image in images %}
+    <img src="{{image}}" width="360">
+ {% endfor %}
+</div>
+</div>
+
+
+<div id="layout-content" style="margin-top:25px">
+<h3>Detection result of the uploaded video.</h3>
+<p> the video can be downloaded from
+{% for video in videos %}
+ <a href="{{video}}"">link</a>
+ {% endfor %}
+</p>
+</div>
+
+<footer style="margin-top: 40px">
+<hr>
+&copy; UB Media Forensic Lab (<a href="http://www.cs.albany.edu/~lsw/">UB MDFL</a>) 2020
+</footer>
+
+</body></html>

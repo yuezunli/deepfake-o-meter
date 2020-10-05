@@ -1,6 +1,6 @@
 # -*- coding: gbk -*-
 
-import cv2, os, time, sys, pdb
+import cv2, os,  time, sys, pdb, shutil
 pwd =os.path.dirname(os.path.abspath(__file__))
 root_dir = pwd + '/../'
 sys.path.append(root_dir)
@@ -51,70 +51,71 @@ def gen_vid(video_path, imgs, fps, width=None, height=None):
 
 
 
-def AnalysisVideo(method, input_vid_path):
-
-    vid_name = os.path.basename(input_vid_path).split('/')[-1].split('.')[0]
-    imgs, frame_num, fps, width, height = utils.parse_vid(input_vid_path)
-    print(len(imgs),vid_name, method)
-    pathToSave = os.path.join(os.path.dirname(__file__), 'result', input_vid_path.split('/')[-3], input_vid_path.split('/')[-2])
-
-
-    if method ==  'DSP-FWA':
-        model = deepfor.DSPFWA()
-    elif method == 'Upconv':
-        model = deepfor.Upconv()
-    elif method == 'WM':
-        model = deepfor.WM()
-    elif method =='Capsule':
-        model = deepfor.CapsuleNet()
-    elif method =='ClassNSeg':
-        model = deepfor.ClassNSeg()
-    elif method =='XceptionNet':
-        model = deepfor.XceptionNet()
-    elif method =='VA':
-        model = deepfor.VA()
-    elif method =='CNNDetection':
-        model = deepfor.CNNDetection()
-    elif method =='Selim':
-        model = deepfor.SelimSeferbekov()
-    elif method =='MesoNet':
-        model = deepfor.MesoNet()
-    elif method =='FWA':
-        model = deepfor.FWA()
+def AnalysisVideo(methods, input_vid_path):
+    for method in methods:
+        vid_name = os.path.basename(input_vid_path).split('/')[-1].split('.')[0]
+        imgs, frame_num, fps, width, height = utils.parse_vid(input_vid_path)
+        print(len(imgs),vid_name, method)
+        pathToSave = os.path.join(os.path.dirname(__file__), 'result', input_vid_path.split('/')[-3], input_vid_path.split('/')[-2])
 
 
-    prob = []
-    final_vis = []
-    imgnum = len(imgs)
+        if method ==  'DSP-FWA':
+            model = deepfor.DSPFWA()
+        elif method == 'Upconv':
+            model = deepfor.Upconv()
+        elif method == 'WM':
+            model = deepfor.WM()
+        elif method =='Capsule':
+            model = deepfor.CapsuleNet()
+        elif method =='ClassNSeg':
+            model = deepfor.ClassNSeg()
+        elif method =='XceptionNet':
+            model = deepfor.XceptionNet()
+        elif method =='VA':
+            model = deepfor.VA()
+        elif method =='CNNDetection':
+            model = deepfor.CNNDetection()
+        elif method =='Selim':
+            model = deepfor.SelimSeferbekov()
+        elif method =='MesoNet':
+            model = deepfor.MesoNet()
+        elif method =='FWA':
+            model = deepfor.FWA()
 
-    for ith in range(imgnum):
-        im = imgs[ith]
-        score = model.run(im)
-        prob.append(1-score)
-        print(ith, score)
-        max_height = 400
-        max_width = 800
-        scale = np.minimum(float(max_height) / height, float(max_width) / width)
-        vis_im = cv2.resize(im, None, None, fx=scale, fy=scale)
-        prob_plot = utils.gen_plot_vid(frame_num, ith, fps, prob)[:, :, (2, 1, 0)]
-        scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
-        plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
-        final_vis_iim = np.concatenate([vis_im,  plot], axis=1)
-        final_vis.append(final_vis_iim  )
 
-    gen_vid(os.path.join(pathToSave, vid_name+method+'.mp4'), np.array(final_vis)[:, :, :,:], fps)
+        prob = []
+        final_vis = []
+        imgnum = len(imgs)
+
+        for ith in range(imgnum):
+            im = imgs[ith]
+            score = model.run(im)
+            prob.append(1-score)
+            print(ith, score)
+            max_height = 400
+            max_width = 800
+            scale = np.minimum(float(max_height) / height, float(max_width) / width)
+            vis_im = cv2.resize(im, None, None, fx=scale, fy=scale)
+            prob_plot = utils.gen_plot_vid(frame_num, ith, fps, prob)[:, :, (2, 1, 0)]
+            scale1 = float(vis_im.shape[0]) / prob_plot.shape[0]
+            plot = cv2.resize(prob_plot, None, None, fx=scale1, fy=scale1)
+            final_vis_iim = np.concatenate([vis_im,  plot], axis=1)
+            final_vis.append(final_vis_iim  )
+
+        gen_vid(os.path.join(pathToSave, vid_name+method+'.mp4'), np.array(final_vis)[:, :, :,:], fps)
 
 
-    # save jpeg score
-    prob = np.array(prob)
-    plt.plot(range(len(prob)), sorted(prob, reverse=True), 'r-', linewidth=2.0)
-    plt.ylim(0, 1.0)
-    plt.xlabel('Frames')
-    plt.ylabel('Frame Integrity Score')
-    plt.grid()
-    plt.title('The Average Score is %.3f' % np.average(np.array(prob)))
-    jpgpath = './static/jpg/'
-    plt.savefig(os.path.join(pathToSave, vid_name+method+'.jpg'))
+        # save jpeg score
+        prob = np.array(prob)
+        plt.plot(range(len(prob)), sorted(prob, reverse=True), 'r-', linewidth=2.0)
+        plt.ylim(0, 1.0)
+        plt.xlabel('Frames')
+        plt.ylabel('Frame Integrity Score')
+        plt.grid()
+        plt.title('The Average Score is %.3f' % np.average(np.array(prob)))
+        plt.savefig(os.path.join(pathToSave, vid_name+method+'.jpg'))
+    np.savez(os.path.join(pathToSave, 'info.npz'),  frames=frame_num, height=height, weight=width, fps=fps, methods=methods, videoName=vid_name)
+    shutil.copytree('./staic/', os.path.join(pathToSave, 'staic'))
 
 
 
