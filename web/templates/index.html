@@ -1,11 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="keywords" content="UBDFML DeepFakeOmeter, State University of New York at Buffalo">
-<meta name="description" content="UBDFML DeepFakeOmeter">
+<meta name="keywords" content="UBDFML DeepFake-o-meter, State University of New York at Buffalo">
+<meta name="description" content="UBDFML DeepFake-o-meter">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jemdoc.css') }}" type="text/css" />
 <link rel="stylesheet" href="{{url_for('static', filename='css/mycss.css')}}" type="text/css" />
 
-<title>DeepFakeOmetert</title>
+<title>DeepFake-o-meter</title>
 
 <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 
@@ -80,26 +80,41 @@
 
 </style>
 <body data-gr-c-s-loaded="true">
-
-
-
-<div class="wrap">
-     <img src={{ url_for('static', filename='images/deepfakeometer2.png') }} alt="">
-     <span><h1 align="center"><b><big>DeepFake-o-meter</b> </big></h1>
-     <br><big>An open platform for DeepFake video detection</big></span>
-        <img src={{ url_for('static', filename='images/deepfakeometer3.png') }} alt="">
- </div>
+ 
+ 
+ <table>
+	<tbody>
+		<tr>
+			<td width="150">
+				<img src={{ url_for('static', filename='images/deepfakeometer2.png') }} border="0" width="100" style="float:right">
+			</td>
+			<td>									
+				<h1 align="center"><b><big>DeepFake-o-meter</b> </big></h1>
+				<p><big>An open platform integrating state-of-the-art DeepFake detection methods</big></p>
+            </td>			
+		</tr><tr>
+	</tr></tbody>
+</table>
 
 <br>
-<form action="/submit" method="post" enctype='multipart/form-data' >
-
-
-
+<br>
+<br>
+<form action="./submit" method="post" enctype='multipart/form-data' >
 
 <div id="layout-content" style="margin-top:25px">
-<h2>Step1: Upload the Video</h2>
-<p style="text-align:justify"> you can paste or enter the video URL, upload from your computer.</p>
-<p style="text-align:justify"> <b>Attention:</b> Upload 1 video at a time.</p>
+<p style="text-align:justify">If you are a developer and want your DeepFake detection method to be included in DeepFake-o-meter,
+  please follow <a href="">these steps</a>.
+</p>
+
+<p style="text-align:justify">Please find instructions of using DeepFake-o-meter in this <a href="">video tutorial</a>.</p>
+</div>
+
+<div id="layout-content" style="margin-top:25px">
+<h2>Upload Video</h2>
+<p style="text-align:justify"> you can enter a YouTube video URL or upload video from your computer.
+Note the video should contain only one subject and upload one video each time.
+</p>
+
 
 <p style="text-align:justify">
  &bull;Upload an url.<br>
@@ -118,7 +133,7 @@
 
 
 <div id="layout-content" style="margin-top:25px">
-<h2>Step2: Select the DeepFake Detection Methods</h2>
+<h2>Select DeepFake Detection Methods</h2>
 <p style="text-align:justify"> Select the deepfake Methods.Instruction <a href="./reference" >Reference</a></p>
 <p style="text-align:justify"> <nobr><dl class="dropdown">
 <dt>
@@ -176,28 +191,34 @@
 
 
 <div id="layout-content" style="margin-top:25px">
-<h2>Step3: Submit your e-mail</h2>
-<p style="text-align:justify"> Please submit your emial. Only one email is required.</p>
-<p style="text-align:justify"><nobr> &bull;  E-mail address: <textarea type="text" class="query" name="input_email" id="input_email" value="" style="width:100px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }">{{input_text}}</textarea></nobr></p>
+<h2>Input your e-mail and PIN code</h2>
+<p style="text-align:justify"> The submission notification and download link of your results will be sent to your email. Only one email is required.</p>
+<p style="text-align:justify"><nobr> &bull;  E-mail address: <textarea type="text" class="query" name="input_email" id="input_email" value="" style="width:200px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }">{{input_text}}</textarea></nobr></p>
+
+<p style="text-align:justify"> The PIN code is used for download verification
+<p style="text-align:justify"><nobr> &bull;  A 4~6 digits PIN code: <textarea type="text" class="query" name="input_pin" id="input_pin" value="" style="width:100px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }">{{input_text}}</textarea></nobr></p>
 <br>
-
 </div>
-
-
 
 
 <div id="layout-content" style="margin-top:25px">
+<h2>Agreement</h2>
+<p style="text-align:justify"><input type="checkBox" onclick="if (this.checked) {enable()} else {disable()}">By clicking this box, I accept the <a href="">terms</a> of using DeepFake-o-meter.</p>
 
-<h2>Step4: Submit PIN code</h2>
-<p style="text-align:justify">Please submit a PIN code for download verification.</p>
-<p style="text-align:justify"><nobr> &bull;  A 4~6 digits PIN code: <textarea type="text" class="query" name="input_pin" id="input_pin" value="" style="width:100px;height:18px" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }">{{input_text}}</textarea></nobr></p>
-<br>
-<p align="center"><input type="submit" style="width:100px;background:#fff;padding: 8px 20px 5px 10px;height:35px;color:#000;margin-top:0px;margin-left:0px" value="Submit"/></p>
+<p style="text-align:justify"><input type="submit" id="accept"  disabled="true" style="width:100px;background:#fff;padding: 8px 20px 5px 10px;height:35px;color:#000;margin-top:0px;margin-left:0px" value="Submit"/></p>
 </div>
 </form>
+
+<br>
+<br>
+<br>
+<p><small>DeepFake-o-meter is developed by <a href="https://yuezunli.github.io/">Yuezun Li</a>, Cong Zhang, Pu Sun, and <a href="https://cse.buffalo.edu/~siweilyu/">Siwei Lyu</a> of <a href="https://ubmdfl.github.io/">
+  UB Media Forensic Lab</a>. The DeepFake-o-meter platform is grateful to the tremendous technical support from the CSE-consult group of the CSE Department at UB. Last but not least, the DeepFake-o-meter team would like to thank all the authors, 
+contributors, and developers of the individual detection algorithms (see the full list <a href="./reference" >Reference</a>)</p></small></p> 
+
 <footer style="margin-top: 40px">
 <hr>
-&copy; UB Media Forensic Lab (<a href="http://www.cs.albany.edu/~lsw/">UB MDFL</a>) 2020
+&copy; UB Media Forensic Lab (<a href="https://ubmdfl.github.io/">UB MDFL</a>) 2020
 </footer>
 </div>
 
@@ -227,6 +248,16 @@ $('.mutliSelect input[type="checkbox"]').on('click', function() {
  $('span[title="' + title + '"]').remove();
  }
 });
+
+function disable()
+  {
+  document.getElementById("accept").disabled=true
+  }
+function enable()
+  {
+  document.getElementById("accept").disabled=false
+  }
+
  </script>
 
 

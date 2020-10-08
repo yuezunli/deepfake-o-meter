@@ -24,8 +24,10 @@ We built a client-server model for the prediction of deepfake image. The docker 
    curl -sSL https://get.daocloud.io/docker | sh
 ```
 
+2. Add user to docker group (logout required)
+```shell
 sudo usermod -aG docker your-username
-
+```
 
 2. Install Nvidia Docker2
 

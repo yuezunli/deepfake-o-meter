@@ -24,7 +24,7 @@ def SendEmail(receiver, pin):
     message['To'] = receiver
 
     # Title of the Email
-    mail_title = 'DeepFakeOmeter got your submission'
+    mail_title = 'DeepFake-o-meter received your submission'
     message['Subject'] = Header(mail_title, 'utf-8')
 
     # Content of the Email
@@ -48,9 +48,9 @@ def validateEmail(email):
     :param email: the email provided by th user
     :return: 1 for right, 0 for wrong
     """
-    if len(email) > 7:
-        if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) != None:
-            return 1
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    if re.search(regex,email):  
+        return 1
     return 0
 
 
@@ -74,7 +74,7 @@ def submitpadge():
         fileurl = request.values.getlist("input_file")[0]
         pin = request.values.getlist("input_pin")[0]
         timerecord = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-        print('submit', methods, email)
+        print('submit', methods, email)     
 
         # check if the submission information is right
         isEmail = validateEmail(email)
@@ -86,19 +86,19 @@ def submitpadge():
             return redirect(url_for('error',type='Method'))
         else:
             basepath = os.path.dirname(__file__)
-            emailDir = os.path.join(basepath, 'tmp', email)
-            dataDir = os.path.join(basepath, 'tmp', email, timerecord)
-            if not os.path.isdir(emailDir):
-                os.mkdir(emailDir)
-            if not os.path.isdir(dataDir):
-                os.mkdir(dataDir)
+            # emailDir = os.path.join(basepath, 'tmp', email)
             upload_path = os.path.join(basepath, 'tmp', email, timerecord)
+            #if not os.path.isdir(emailDir):
+                #os.mkdir(emailDir)
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+            # upload_path = os.path.join(basepath, 'tmp', email, timerecord)
+            
             # save the video and pin code
             np.save(upload_path+'/methods', methods)
             np.save(upload_path+'/pin', pin)
             if f.filename:
-                f.save("tmp.mp4")
-                shutil.move("tmp.mp4",os.path.join(upload_path, f.filename))
+                f.save(os.path.join(upload_path, f.filename))
             else:
                 sys.argv = ['you-get', '-o', upload_path, '-O', 'tmp', fileurl]
                 you_get.main()
