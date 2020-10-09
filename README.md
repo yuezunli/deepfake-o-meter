@@ -25,7 +25,7 @@ To date, this toolbox supports following methods:
 
 ## Quick Start
 
-1. The original method (with slight modification for intergration) can be downloaded from [here](https://drive.google.com/drive/folders/1gn43ZKYiY5IwklpJS5IysjxjlGZqvKom?usp=sharing). Unzip the method to folder `externals`. You may need to make a new folder following below structure.
+1. The original method (with slight modification for intergration) can be downloaded from [here](https://drive.google.com/drive/folders/1gn43ZKYiY5IwklpJS5IysjxjlGZqvKom?usp=sharing)(From console you can [gdown](https://github.com/wkentaro/gdown) package). Unzip the method to folder `externals`. You may need to make a new folder following below structure.
 
    ```
    Root --- deepfor ----- externals
