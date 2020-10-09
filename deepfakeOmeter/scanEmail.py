@@ -14,26 +14,27 @@ portSum = 10000
 
 
 def createHTML(path):
-    data = np.load(path+'info.npz')
+    data = np.load(os.path.join(path,'info.npz'))
     env = Environment(loader=FileSystemLoader("templates"))
     template = env.get_template("result.j2")
-    videoName = data['videoName']
-    frames = data['frame_num']
-    height = data['height']
-    weight = data['weight']
-    fps = data['fps']
+    videoName = str(data['videoName'])
+    frames = str(data['frame_num'])
+    height = str(data['height'])
+    weight = str(data['weight'])
+    fps = str(data['fps'])
     images = []
     videos = []
     methods = data['methods']
     for method in methods:
-        images.append(videoName + method + '.jpg')
-        videos.append(videoName + method + '.mp4')
+        images.append(videoName + str(method) + '.jpg')
+        videos.append(videoName + str(method) + '.mp4')
 
     content = template.render(videoName=videoName, frames=frames, height=height, weight=weight, images=images,
                               videos=videos)
-
-    with open(path+'result.py', 'w') as fp:
+    shutil.copytree('static', os.path.join(path,'static'))
+    with open(os.path.join(path,'result.html'), 'w') as fp:
         fp.write(content)
+
 
 
 def get_host_ip():
