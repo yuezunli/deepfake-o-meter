@@ -2,7 +2,7 @@ import flask, os, time, re, you_get, sys, shutil
 import numpy as np
 from datetime import datetime
 from flask import  render_template, url_for, redirect, request, Flask, send_from_directory
-#from email_utils import SendEmail, validateEmail
+from email_utils import SendEmail, validateEmail
 
 
 # Flask App
@@ -25,7 +25,7 @@ def submitpadge():
         fileurl = request.values.getlist("input_file")[0]
         pin = request.values.getlist("input_pin")[0]
         timerecord = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-        print('submit', methods, email)     
+        print('submit', methods, email)  
 
         # check if the submission information is right
         isEmail = validateEmail(email)
@@ -35,6 +35,8 @@ def submitpadge():
             return redirect(url_for('error',type='Input'))
         elif len(methods) == 0:
             return redirect(url_for('error',type='Method'))
+        elif not pin.isdigit() or len(pin) < 4 or len(pin) > 6:
+            return redirect(url_for('error',type='PIN'))
         else:
             basepath = '/data/web/ubmdfl/deepfake-o-meter-sync-received/'  #os.path.dirname(__file__)
             # emailDir = os.path.join(basepath, 'tmp', email)
@@ -73,8 +75,10 @@ def error(type):
         error = 'input video'
     elif type=='Method':
         error = 'selected methods'
-    elif type == 'Download URL':
-        error = 'Download URL'
+    elif type == 'PIN':
+        error = 'PIN code'
+    elif type == 'Download':
+        error = 'download URL'
     return render_template('error.html', error=error, type=type)
 
 
@@ -97,13 +101,13 @@ def download_file(filename):
     received_folder = '/data/web/ubmdfl/deepfake-o-meter-sync-received/{}/{}'.format(email, date)
     pin_ = np.load(os.path.join(received_folder, 'pin.npy'))
     if pin_ != pin:
-        error('Download URL')
-
-    directory = os.path.join('/data/web/ubmdfl/deepfake-o-meter-sync-result/{}/{}/'.format(email, date))
-    fn = 'result.zip'
-    if os.path.isfile(os.path.join(directory, fn)):
-        return send_from_directory(directory, fn, as_attachment=True)
-    raise exceptions.MyHttpNotFound('not found file')
+        return redirect(url_for('error',type='Download'))
+    else:
+        directory = os.path.join('/data/web/ubmdfl/deepfake-o-meter-sync-result/{}/{}/'.format(email, date))
+        fn = 'result.zip'
+        if os.path.isfile(os.path.join(directory, fn)):
+            return send_from_directory(directory, fn, as_attachment=True)
+        raise exceptions.MyHttpNotFound('not found file')
     
 
 if __name__ == '__main__':
