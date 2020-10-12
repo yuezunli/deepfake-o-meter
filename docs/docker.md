@@ -120,3 +120,24 @@ docker run --gpus all --rm nvidia/cuda:9.0-base nvidia-smi
    img = cv2.imread(img_path+imname)
    score = requests.post('http://server_ip:2500/deepforensics', json={'feature': img.tolist()})
 ```
+
+
+## Tips
+
+### Change image directory
+```shell
+
+sudo service docker stop
+
+# Add a configuration file to tell the docker daemon what is the location of the data directory Using your preferred text editor add a file named daemon.json under the directory /etc/docker. The file should have this content:
+{ 
+   "graph": "/path/to/your/docker" 
+}
+
+sudo rsync -aP /var/lib/docker/ /path/to/your/docker
+
+sudo mv /var/lib/docker /var/lib/docker.old
+
+sudo service docker start
+
+```

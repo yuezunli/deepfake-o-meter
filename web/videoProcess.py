@@ -51,12 +51,12 @@ def gen_vid(video_path, imgs, fps, width=None, height=None):
 
 
 
-def AnalysisVideo(method, input_vid_path):
+def AnalysisVideo(method, input_vid_path, pathToSave):
 
     vid_name = os.path.basename(input_vid_path).split('/')[-1].split('.')[0]
     imgs, frame_num, fps, width, height = utils.parse_vid(input_vid_path)
     print(len(imgs),vid_name, method)
-    pathToSave = os.path.join(os.path.dirname(__file__), 'result', input_vid_path.split('/')[-3], input_vid_path.split('/')[-2])
+    # pathToSave = os.path.join(os.path.dirname(__file__), 'sync', 'result', input_vid_path.split('/')[-3], input_vid_path.split('/')[-2])
 
 
     if method ==  'DSP-FWA':
@@ -113,7 +113,6 @@ def AnalysisVideo(method, input_vid_path):
     plt.ylabel('Frame Integrity Score')
     plt.grid()
     plt.title('The Average Score is %.3f' % np.average(np.array(prob)))
-    jpgpath = './static/jpg/'
     plt.savefig(os.path.join(pathToSave, vid_name+method+'.jpg'))
 
 
@@ -122,9 +121,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model', help='Model Name', default='WM')
     parser.add_argument('-v', '--video', help='Video Path', default='test.mp4')
+    parser.add_argument('-o', '--out', help='Out Path', default='out.mp4')
     args = parser.parse_args()
 
 
     model =  args.model
     input_vid_path = args.video
-    AnalysisVideo(model,  input_vid_path)
+    pathToSave = args.out
+    AnalysisVideo(model, input_vid_path, pathToSave)

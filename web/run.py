@@ -1,57 +1,8 @@
-import flask, os, time, re, you_get, sys, shutil, smtplib
+import flask, os, time, re, you_get, sys, shutil
 import numpy as np
 from datetime import datetime
-from flask import  render_template, url_for, redirect, request, Flask
-from email.header import Header
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-
-def SendEmail(receiver, pin):
-    """
-    Send the email to inform the user, we have received his submission.
-    :param receiver: the receiver's email address
-    :param pin: the pin code the receiver submit
-    """
-    # Information about the email sender
-    sender = 'zchh1209@163.com'
-    smtpserver = 'smtp.163.com'
-    username = 'zchh1209'
-    password = 'UFLRRRLDPWZKJDWV'
-
-    message = MIMEMultipart()
-    message['From'] = sender
-    message['To'] = receiver
-
-    # Title of the Email
-    mail_title = 'DeepFake-o-meter received your submission'
-    message['Subject'] = Header(mail_title, 'utf-8')
-
-    # Content of the Email
-    message.attach(MIMEText('We have received your submission. The result will be send to this email later.' + '\n' +
-    'Please check your result and download them in 5 days.' + '\n' +
-    'Please remeber your pin code:' + pin + '\n' +
-    'If you don not  get the results in 5 days, Pleasse contact us.'
-    , 'plain', 'utf-8'))
-
-    smtpObj = smtplib.SMTP_SSL(smtpserver)
-    smtpObj.connect(smtpserver)
-    smtpObj.login(username, password)
-    smtpObj.sendmail(sender, receiver, message.as_string())
-    print("suceed")
-    smtpObj.quit()
-
-
-def validateEmail(email):
-    """
-    Check the email if it is valid
-    :param email: the email provided by th user
-    :return: 1 for right, 0 for wrong
-    """
-    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-    if re.search(regex,email):  
-        return 1
-    return 0
+from flask import  render_template, url_for, redirect, request, Flask, send_from_directory
+#from email_utils import SendEmail, validateEmail
 
 
 # Flask App
@@ -85,9 +36,9 @@ def submitpadge():
         elif len(methods) == 0:
             return redirect(url_for('error',type='Method'))
         else:
-            basepath = os.path.dirname(__file__)
+            basepath = '/data/web/ubmdfl/deepfake-o-meter-sync-received/'  #os.path.dirname(__file__)
             # emailDir = os.path.join(basepath, 'tmp', email)
-            upload_path = os.path.join(basepath, 'tmp', email, timerecord)
+            upload_path = os.path.join(basepath, email, timerecord)
             #if not os.path.isdir(emailDir):
                 #os.mkdir(emailDir)
             if not os.path.exists(upload_path):
@@ -106,7 +57,11 @@ def submitpadge():
             with open(os.path.join(upload_path, (f.filename).split('.')[0]+'.csv'), 'w') as f:
                 f.writelines('Finish Save!')
             # send the email
-            SendEmail(email, pin)
+            title = 'DeepFake-o-meter received your submission'
+            content = 'We have received your submission. The result will be send to your email later. \n' + \
+            'Please remeber your pin code:' + pin + '\n' + \
+            'If you don not receive the results in 2 days, Pleasse contact us via deepfake-o-meter@gmail.com.'
+            SendEmail(email, title, content)
         return render_template('succeed.html')
 
 
@@ -118,6 +73,8 @@ def error(type):
         error = 'input video'
     elif type=='Method':
         error = 'selected methods'
+    elif type == 'Download URL':
+        error = 'Download URL'
     return render_template('error.html', error=error, type=type)
 
 
@@ -125,6 +82,29 @@ def error(type):
 @app.route('/reference')
 def index():
     return render_template('reference.html')
+    
+    
+    
+# Downloading results    
+@app.route("/download/<filename>", methods=['GET'])
+def download_file(filename):
+    # filename = email address _ PIN code _ date
+    subfolders = filename.split('_')
+    email = subfolders[0]
+    pin = subfolders[1]
+    date = subfolders[2]
+    # Check if email and date are matched with PIN
+    received_folder = '/data/web/ubmdfl/deepfake-o-meter-sync-received/{}/{}'.format(email, date)
+    pin_ = np.load(os.path.join(received_folder, 'pin.npy'))
+    if pin_ != pin:
+        error('Download URL')
+
+    directory = os.path.join('/data/web/ubmdfl/deepfake-o-meter-sync-result/{}/{}/'.format(email, date))
+    fn = 'result.zip'
+    if os.path.isfile(os.path.join(directory, fn)):
+        return send_from_directory(directory, fn, as_attachment=True)
+    raise exceptions.MyHttpNotFound('not found file')
+    
 
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', debug=True, port=5006)
